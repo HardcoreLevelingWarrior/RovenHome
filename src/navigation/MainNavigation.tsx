@@ -17,6 +17,38 @@ const TabNavigator = () => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
+        tabBarStyle: {
+          height: 80,
+          position: 'absolute',
+          bottom: 15,
+          left: 15,
+          right: 15,
+          paddingBottom: 15,
+          paddingTop: 10,
+          backgroundColor: '#ffffff',
+          borderTopWidth: 0,
+
+          //shadow style
+          elevation: 20,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.1,
+          shadowRadius: 10,
+          borderRadius: 25,
+          // width: '90%',
+          marginHorizontal: 25,
+          alignSelf: 'center',
+        },
+
+        tabBarLabelStyle: {
+          fontSize: 12,
+          marginTop: 5,
+        },
+
+        tabBarIconStyle: {
+          marginBottom: -5, // تراز کردن آیکون
+        },
+
         tabBarIcon: ({ focused, color, size }) => {
           let iconName = 'help-circle';
 
