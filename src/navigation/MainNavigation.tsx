@@ -10,13 +10,20 @@ import Setting from '../screens/Setting/Setting';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 
+import { useTranslation } from 'react-i18next';
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 const TabNavigator = () => {
+  const { t } = useTranslation();
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
+        headerShown: false,
+
+        tabBarLabel: t(route.name),
+
         tabBarStyle: {
           height: 80,
           position: 'absolute',

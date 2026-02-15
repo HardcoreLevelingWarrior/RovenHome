@@ -8,7 +8,9 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { NewAppScreen } from '@react-native/new-app-screen';
 import MainNavigation from '../navigation/MainNavigation.tsx';
+import { ThemeProvider } from '../context/themeContext.tsx';
 import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
+import '../i18n';
 import {
   SafeAreaProvider,
   useSafeAreaInsets,
@@ -18,9 +20,11 @@ function App() {
   const isDarkMode = useColorScheme() === 'dark';
 
   return (
-    <NavigationContainer>
-      <MainNavigation></MainNavigation>
-    </NavigationContainer>
+    <ThemeProvider>
+      <NavigationContainer>
+        <MainNavigation></MainNavigation>
+      </NavigationContainer>
+    </ThemeProvider>
   );
 }
 
