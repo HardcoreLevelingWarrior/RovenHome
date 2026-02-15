@@ -56,6 +56,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   );
 }
 
+export const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error('useTheme must be used within ThemeProvider');
+  }
+  return context;
+};
+
 // export function ThemeProvider({ children }: { children: ReactNode }) {
 //   const systemScheme = useColorScheme();
 //   const effectiveScheme = systemScheme === 'dark' ? 'dark' : 'light';
@@ -79,11 +87,3 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 //     <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
 //   );
 // }
-
-export const useTheme = () => {
-  const context = useContext(ThemeContext);
-  if (!context) {
-    throw new Error('useTheme must be used within ThemeProvider');
-  }
-  return context;
-};

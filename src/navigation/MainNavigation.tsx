@@ -11,12 +11,17 @@ import Setting from '../screens/Setting/Setting';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '../context/themeContext';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 const TabNavigator = () => {
+  const { theme, isDark } = useTheme();
+  const { colors } = theme;
+
   const { t } = useTranslation();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -32,24 +37,36 @@ const TabNavigator = () => {
           right: 15,
           paddingBottom: 15,
           paddingTop: 10,
-          backgroundColor: '#ffffff',
-          borderTopWidth: 0,
+          // backgroundColor: '#ffffff',
+          // borderTopWidth: 0,
+
+          backgroundColor: colors.surface, // یا colors.background
+          borderTopColor: colors.divider,
+          borderTopWidth: 1,
+          elevation: 8,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
 
           //shadow style
-          elevation: 20,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: -4 },
-          shadowOpacity: 0.1,
-          shadowRadius: 10,
+          // elevation: 20,
+          // shadowColor: '#000',
+          // shadowOffset: { width: 0, height: -4 },
+          // shadowOpacity: 0.1,
+          // shadowRadius: 10,
           borderRadius: 25,
           // width: '90%',
           marginHorizontal: 25,
           alignSelf: 'center',
         },
 
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textSecondary,
         tabBarLabelStyle: {
           fontSize: 12,
-          marginTop: 5,
+          fontWeight: '500',
+          marginTop: 10,
         },
 
         tabBarIconStyle: {
@@ -69,8 +86,8 @@ const TabNavigator = () => {
 
           return <Icon name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: 'tomato',
-        tabBarInactiveTintColor: 'gray',
+        // tabBarActiveTintColor: 'tomato',
+        // tabBarInactiveTintColor: 'gray',
       })}
     >
       <Tab.Screen name={Routes.HomeScreen} component={HomeScreen} />
@@ -88,6 +105,7 @@ const MainNavigation = () => {
     >
       <Stack.Screen name="MainTab" component={TabNavigator} />
       <Stack.Screen name={Routes.HomeScreen} component={HomeScreen} />
+      <Stack.Screen name={Routes.AddDeviceScreen} component={AddDeviceScreen} />
     </Stack.Navigator>
   );
 };

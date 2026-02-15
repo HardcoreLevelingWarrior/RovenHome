@@ -5,5 +5,16 @@
   "Hello World": "درود بر دنیا",
   "Language": "زبان",
   "Roven": "Roven",
-  "Add Device": "افزودن دستگاه"
+  "Add Device": "افزودن دستگاه",
+  "language": "زبان",
+  "current_language": "فارسی",
+  "Theme": "تم",
+  "Dark": "تاریک",
+  "Light": "روشن",
+  "Choose your language": "انتخاب زبان",
+  "English": "انگلیسی",
+  "Persian": "فارسی",
+  "Close": "بستن",
+  "Choose your theme": "انتخاب تم",
+  "Dark mode": "حالت تاریک"
 }
