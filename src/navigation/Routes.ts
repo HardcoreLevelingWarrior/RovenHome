@@ -1,5 +1,5 @@
 export const Routes = {
-  HomeScreen: 'HomeScreen',
+  HomeScreen: 'Home',
   DeviceScreen: 'DeviceScreen',
   Setting: 'Setting',
   AddDeviceScreen: 'AddDeviceScreen',
