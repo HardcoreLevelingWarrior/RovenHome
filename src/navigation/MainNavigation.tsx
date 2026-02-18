@@ -7,11 +7,14 @@ import HomeScreen from '../screens/HomeScreen/HomeScreen';
 import AddDeviceScreen from '../screens/AddDeviceScreen/AddDeviceScreen';
 import DeviceScreen from '../screens/DeviceScreen/DeviceScreen';
 import Setting from '../screens/Setting/Setting';
+import BrandScreen from '../screens/BrandScreen/BrandScreen';
+import PickDeviceScreen from '../screens/pickDeviceScreen/PickDeviceScreen';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/themeContext';
+import SetupGuideScreen from '../screens/setupGuideScreen/SetUpGuideScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -106,6 +109,15 @@ const MainNavigation = () => {
       <Stack.Screen name="MainTab" component={TabNavigator} />
       <Stack.Screen name={Routes.HomeScreen} component={HomeScreen} />
       <Stack.Screen name={Routes.AddDeviceScreen} component={AddDeviceScreen} />
+      <Stack.Screen name={Routes.BrandScreen} component={BrandScreen} />
+      <Stack.Screen
+        name={Routes.PickDeviceScreen}
+        component={PickDeviceScreen}
+      />
+      <Stack.Screen
+        name={Routes.SetupGuideScreen}
+        component={SetupGuideScreen}
+      />
     </Stack.Navigator>
   );
 };

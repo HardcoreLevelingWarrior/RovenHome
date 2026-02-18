@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Modal, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../context/themeContext';
+import CustomText from '../../../components/customText';
+import { usePersistedLanguage } from '../../../hooks/usePersistedLanguage';
 
 const LANGUAGES = [
   { code: 'fa', label: 'Persian' },
@@ -12,17 +14,18 @@ const LANGUAGES = [
 
 export default function LanguageToggleButton() {
   const { theme } = useTheme();
-  const { colors } = theme;
+  const { colors, typography } = theme;
   const { i18n, t } = useTranslation();
 
+  const { changeLanguage } = usePersistedLanguage();
   const [modalVisible, setModalVisible] = useState(false);
 
-  const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng);
-    setModalVisible(false);
-    // اگر می‌خوای ذخیره بشه:
-    // AsyncStorage.setItem('userLanguage', lng);
-  };
+  // const changeLanguage = (lng: string) => {
+  //   i18n.changeLanguage(lng);
+  //   setModalVisible(false);
+  //   // اگر می‌خوای ذخیره بشه:
+  //   // AsyncStorage.setItem('userLanguage', lng);
+  // };
 
   return (
     <>
@@ -30,12 +33,14 @@ export default function LanguageToggleButton() {
         style={[styles.row, { borderBottomColor: colors.divider }]}
         onPress={() => setModalVisible(true)}
       >
-        <Text style={[styles.label, { color: colors.textPrimary }]}>
-          {t('language')}
-        </Text>
-        <Text style={[styles.value, { color: colors.textSecondary }]}>
-          {t('current_language')} {/* یا مستقیم نام زبان فعلی */}
-        </Text>
+        <CustomText
+          style={[styles.label, { color: colors.textPrimary }]}
+          children={t('language')}
+        ></CustomText>
+        <CustomText
+          style={[styles.value, { color: colors.textSecondary }]}
+          children={t('current_language')}
+        ></CustomText>
       </TouchableOpacity>
 
       <Modal
@@ -48,9 +53,10 @@ export default function LanguageToggleButton() {
           <View
             style={[styles.modalContent, { backgroundColor: colors.surface }]}
           >
-            <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>
-              {t('Choose your language')}
-            </Text>
+            <CustomText
+              style={[styles.modalTitle, { color: colors.textPrimary }]}
+              children={t('Choose your language')}
+            ></CustomText>
 
             {LANGUAGES.map(lang => (
               <TouchableOpacity
@@ -66,7 +72,7 @@ export default function LanguageToggleButton() {
                 ]}
                 onPress={() => changeLanguage(lang.code)}
               >
-                <Text
+                <CustomText
                   style={{
                     color:
                       i18n.language === lang.code
@@ -74,9 +80,8 @@ export default function LanguageToggleButton() {
                         : colors.textPrimary,
                     fontWeight: i18n.language === lang.code ? '600' : '400',
                   }}
-                >
-                  {t(lang.label)}
-                </Text>
+                  children={t(lang.label)}
+                ></CustomText>
               </TouchableOpacity>
             ))}
 
@@ -84,9 +89,10 @@ export default function LanguageToggleButton() {
               style={[styles.closeBtn, { backgroundColor: colors.primary }]}
               onPress={() => setModalVisible(false)}
             >
-              <Text style={{ color: colors.textPrimary, fontWeight: '600' }}>
-                {t('Close')}
-              </Text>
+              <CustomText
+                style={{ color: colors.textPrimary, fontWeight: '600' }}
+                children={t('Close')}
+              ></CustomText>
             </TouchableOpacity>
           </View>
         </View>
@@ -110,7 +116,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 16,
+    paddingVertical: 25,
     borderBottomWidth: 1,
   },
   label: {

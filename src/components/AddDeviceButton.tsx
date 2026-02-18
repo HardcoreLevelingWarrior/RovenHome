@@ -9,7 +9,11 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Routes } from '../navigation/Routes';
-import AddDeviceScreen from '../screens/AddDeviceScreen/AddDeviceScreen';
+
+import { useTheme } from '../context/themeContext';
+import CustomText from './customText';
+import Setting from '../screens/Setting/Setting';
+import SettingTab from './SettingTab';
 
 const { width } = Dimensions.get('window');
 
@@ -20,14 +24,25 @@ interface Props {
 
 function AddDeviceButton({ avatar, text }: Props) {
   const navigation = useNavigation<any>();
+  const { theme } = useTheme();
+  const { colors, typography, shadows } = theme;
 
   return (
     <TouchableOpacity
-      style={styles.container}
-      onPress={() => navigation.navigate(AddDeviceScreen)}
+      style={[
+        styles.container,
+        { backgroundColor: colors.surface, ...shadows.medium },
+      ]}
+      onPress={() => navigation.navigate(Routes.AddDeviceScreen)}
     >
       <Image style={styles.imageBox} source={avatar}></Image>
-      <Text>{text}</Text>
+      <CustomText
+        style={[
+          { color: colors.textPrimary, fontSize: typography.fontSize.base },
+        ]}
+        children={text}
+        weight="bold"
+      ></CustomText>
     </TouchableOpacity>
   );
 }
@@ -42,7 +57,6 @@ const styles = StyleSheet.create({
     // height: width * 0.5,
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: '#fff',
     borderRadius: 16,
     elevation: 5,
     zIndex: 5,

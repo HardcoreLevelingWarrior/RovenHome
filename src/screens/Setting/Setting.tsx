@@ -12,17 +12,26 @@ import { useTheme } from '../../context/themeContext';
 import { useTranslation } from 'react-i18next';
 import LanguageToggleButton from './components/languageToggleButton';
 import ThemeToggleButton from './components/themeToggleButton';
+import CustomText from '../../components/customText';
 
 export default function Setting() {
   const { theme } = useTheme();
-  const { colors } = theme;
+  const { colors, typography } = theme;
   const { t } = useTranslation();
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={[styles.title, { color: colors.textPrimary }]}>
-        {t('Setting')}
-      </Text>
+      <CustomText
+        style={[
+          styles.title,
+          {
+            color: colors.textPrimary,
+            fontSize: typography.fontSize.xxxl,
+          },
+        ]}
+        children={t('Setting')}
+        weight="bold"
+      ></CustomText>
 
       <ThemeToggleButton></ThemeToggleButton>
       <LanguageToggleButton></LanguageToggleButton>
@@ -36,9 +45,9 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    textAlign: 'center',
     marginBottom: 32,
+    marginTop: 15,
   },
   button: {
     paddingVertical: 16,

@@ -12,10 +12,16 @@ export const typography = {
     xl: 20,
     xxl: 24,
     xxxl: 32,
+    xxxxl: 48,
   },
   lineHeight: {
     tight: 1.2,
     normal: 1.5,
     loose: 1.8,
+  },
+  fontWeight: {
+    light: 300,
+    normanl: 600,
+    bold: 800,
   },
 } as const;

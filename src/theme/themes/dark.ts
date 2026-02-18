@@ -6,7 +6,7 @@ export const darkTheme = {
     primaryLight: palette.primary.main,
     primaryDark: palette.primary.dark,
     background: '#121212',
-    surface: '#1e1e1e',
+    surface: '#2e2d2d',
     textPrimary: '#ffffff',
     textSecondary: '#bbbbbb',
     divider: '#444444',

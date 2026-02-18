@@ -1,6 +1,9 @@
 export const Routes = {
-  HomeScreen: 'Home',
+  HomeScreen: 'HomeScreen',
   DeviceScreen: 'Devices',
   Setting: 'Setting',
   AddDeviceScreen: 'AddDeviceScreen',
-};
+  BrandScreen: 'BrandScreen',
+  PickDeviceScreen: 'PickDeviceScreen',
+  SetupGuideScreen: 'SetupGuideScreen',
+} as const;

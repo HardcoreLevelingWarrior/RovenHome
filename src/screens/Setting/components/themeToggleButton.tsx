@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 import { useTheme } from '../../../context/themeContext';
 import { useTranslation } from 'react-i18next';
+import CustomText from '../../../components/customText';
+
 
 export default function ThemeToggleButton() {
   const { theme, isDark, toggleTheme } = useTheme();
@@ -17,6 +19,7 @@ export default function ThemeToggleButton() {
 
   const { t } = useTranslation();
   const [modalVisible, setModalVisible] = useState(false);
+  
 
   return (
     <>
@@ -24,12 +27,15 @@ export default function ThemeToggleButton() {
         style={[styles.row, { borderBottomColor: colors.divider }]}
         onPress={() => setModalVisible(true)}
       >
-        <Text style={[styles.label, { color: colors.textPrimary }]}>
-          {t('Theme')}
-        </Text>
-        <Text style={[styles.value, { color: colors.textSecondary }]}>
-          {isDark ? t('Dark') : t('Light')}
-        </Text>
+        <CustomText
+          style={[styles.label, { color: colors.textPrimary }]}
+          children={t('Theme')}
+        ></CustomText>
+
+        <CustomText
+          style={[styles.value, { color: colors.textSecondary }]}
+          children={isDark ? t('Dark') : t('Light')}
+        ></CustomText>
       </TouchableOpacity>
 
       <Modal
@@ -42,14 +48,17 @@ export default function ThemeToggleButton() {
           <View
             style={[styles.modalContent, { backgroundColor: colors.surface }]}
           >
-            <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>
-              {t('Choose your theme')}
-            </Text>
+            <CustomText
+              style={[styles.modalTitle, { color: colors.textPrimary }]}
+              children={t('Choose your theme')}
+            ></CustomText>
 
             <View style={styles.switchContainer}>
-              <Text style={{ color: colors.textPrimary, fontSize: 16 }}>
-                {t('Dark mode')}
-              </Text>
+              <CustomText
+                style={{ color: colors.textPrimary, fontSize: 16 }}
+                children={t('Dark mode')}
+              ></CustomText>
+
               <Switch
                 value={isDark}
                 onValueChange={() => {
@@ -66,9 +75,10 @@ export default function ThemeToggleButton() {
               style={[styles.closeBtn, { backgroundColor: colors.primary }]}
               onPress={() => setModalVisible(false)}
             >
-              <Text style={{ color: colors.textPrimary, fontWeight: '600' }}>
-                {t('Close')}
-              </Text>
+              <CustomText
+                style={{ color: colors.textPrimary, fontWeight: '600' }}
+                children={t('Close')}
+              ></CustomText>
             </TouchableOpacity>
           </View>
         </View>

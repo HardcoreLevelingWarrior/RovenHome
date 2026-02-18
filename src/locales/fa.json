@@ -16,5 +16,19 @@
   "Persian": "فارسی",
   "Close": "بستن",
   "Choose your theme": "انتخاب تم",
-  "Dark mode": "حالت تاریک"
+  "Dark mode": "حالت تاریک",
+  "Add Device Screen": "صفحه افزودن دستگاه",
+  "Add device based on :": "اضافه کردن دستگاه براساس :",
+  "Select based on device brand": "انتخاب براساس برند دستگاه",
+  "adding devices based on the device brand and model ": "اضافه کردن دستگاه مورد نظر با استفاده از برند و مدل دستگاه ",
+  "Choose your device brand :": "انتخاب برند دستگاه :",
+  "Pick your device from the list :": "انتخاب دستگاه براساس برند :",
+  "Pick your device:": "انتخاب دستگاه :",
+  "Setup Guide for": "راهنمای اتصال برای",
+  "oven": "فر",
+  "Please turn on the oven.": "لطفا فر را روشن کنید.",
+  "Reset your oven so, the device enters it's access point mode.": "فر خود را ریست کنید تادستگاه وارد access point(wifi دستگاه) شود.",
+  "Now please try to conenct your mobile phone to the device access point ": "حالا اجازه دهید موبایل به قسمت access point(wifi دستگاه) برود.",
+  "Now you have 3 minutes to connect to the device": "حالا ۳ دقیقه صبر کنید تا به دستگاه وصل شود.",
+  "Start connection": "شروع اتصال"
 }

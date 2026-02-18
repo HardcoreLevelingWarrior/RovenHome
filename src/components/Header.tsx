@@ -1,4 +1,6 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { useTheme } from '../context/themeContext';
+import CustomText from './customText';
 
 interface Props {
   headerText: string;
@@ -6,11 +8,27 @@ interface Props {
 }
 
 function Header({ headerText, brandName }: Props) {
+  const { theme } = useTheme();
+  const { colors, typography, shadows } = theme;
   return (
-    <View style={styles.headerContainer}>
-      <Text style={styles.headerText}>
-        {brandName ? brandName : headerText}
-      </Text>
+    <View
+      style={[
+        styles.headerContainer,
+        { backgroundColor: colors.surface, ...shadows.small },
+      ]}
+    >
+      <CustomText
+        style={[
+          styles.headerText,
+          {
+            fontSize: typography.fontSize.xxxxl,
+            color: colors.textPrimary,
+            paddingTop: 14,
+          },
+        ]}
+        children={brandName ? brandName : headerText}
+        weight="bold"
+      ></CustomText>
     </View>
   );
 }
@@ -18,24 +36,18 @@ function Header({ headerText, brandName }: Props) {
 const styles = StyleSheet.create({
   headerContainer: {
     flex: 0,
-    height: 120,
     paddingHorizontal: 16,
     paddingBottom: 10,
-    flexDirection: 'row',
     justifyContent: 'space-around',
+    alignContent: 'center',
     alignItems: 'center',
+    borderRadius: 50,
+    width: '90%',
+    marginHorizontal: 'auto',
   },
   headerText: {
     fontSize: 30,
     textAlign: 'center',
-  },
-  headerBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 25,
-    backgroundColor: '#ddd',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   icon: {
     width: '70%',

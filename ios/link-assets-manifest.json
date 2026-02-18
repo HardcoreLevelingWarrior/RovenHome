@@ -1,0 +1,65 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "src/assets/fonts/Poppins-Light.ttf",
+      "sha1": "953fd345eeae122691a2b1e25a84f3e4a3f5a406"
+    },
+    {
+      "path": "src/assets/fonts/Poppins-Medium.ttf",
+      "sha1": "ef1c52ba60c3128e36064c827ecabc8f53bb8004"
+    },
+    {
+      "path": "src/assets/fonts/Poppins-Regular.ttf",
+      "sha1": "7ec8b23db953874bbc2802b49bbf57c9b87a1d1c"
+    },
+    {
+      "path": "src/assets/fonts/Iran-Sans-Light.ttf",
+      "sha1": "53deb78cc4ba27cbcd9f93c13ae84ed448a00fa5"
+    },
+    {
+      "path": "src/assets/fonts/irsansb.ttf",
+      "sha1": "bbba4ee931b134be7ccbecc495b69e62d8a348d4"
+    },
+    {
+      "path": "src/assets/fonts/irsans.ttf",
+      "sha1": "36645cacd58f14abc24e1240339058839ec5a6cc"
+    },
+    {
+      "path": "src/assets/fonts/Poppins-Bold.ttf",
+      "sha1": "413c7c6188f5b73482c71097dcc86cff6ded05f6"
+    },
+    {
+      "path": "src/assets/fonts/Poppins-ExtraBold.ttf",
+      "sha1": "71b0895a042f6cf155c807fbd175b650b11a40e0"
+    },
+    {
+      "path": "src/assets/fonts/Vazirmatn-Bold.ttf",
+      "sha1": "411ce48556741ee4de4dafd480e530cb871204b8"
+    },
+    {
+      "path": "src/assets/fonts/Vazirmatn-ExtraBold.ttf",
+      "sha1": "67ba9900e870927389e9deb82e4179d380d6788e"
+    },
+    {
+      "path": "src/assets/fonts/Vazirmatn-Light.ttf",
+      "sha1": "f4c968544506d1b4baa54662f575c43fffaa1310"
+    },
+    {
+      "path": "src/assets/fonts/Vazirmatn-Medium.ttf",
+      "sha1": "791858af28c02c661da9da91c16e8db6a2d1153a"
+    },
+    {
+      "path": "src/assets/fonts/Vazirmatn-Regular.ttf",
+      "sha1": "ff556821748de10ebe1ffc7d786b66481b4c04d9"
+    },
+    {
+      "path": "src/assets/fonts/Poppins-Medium copy.ttf",
+      "sha1": "283f21b44efbdbf276ba802be2d949a36bbc4233"
+    },
+    {
+      "path": "src/assets/fonts/Poppins-Bold copy.ttf",
+      "sha1": "875cf0cecd647bcf22e79d633d868c1b1ec98dfa"
+    }
+  ]
+}

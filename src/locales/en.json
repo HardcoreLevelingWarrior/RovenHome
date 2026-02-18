@@ -16,5 +16,19 @@
   "Persian": "Persian",
   "Close": "Close",
   "Choose your theme": "Choose your theme",
-  "Dark mode": "Dark mode"
+  "Dark mode": "Dark mode",
+  "Add Device Screen": "Add Device Screen",
+  "Add device based on :": "Add device based on :",
+  "Select based on device brand": "Select based on device brand",
+  "adding devices based on the device brand and model ": "adding devices based on the device brand and model ",
+  "Choose your device brand": "Choose your device brand :",
+  "Pick your device from the list :": "Pick your device from the list :",
+  "Pick your device:": "Pick your device:",
+  "oven": "oven",
+  "Setup Guide for": "Setup Guide for",
+  "Please turn on the oven.": "Please turn on the oven.",
+  "Reset your oven so, the device enters it's access point mode.": "Reset your oven so, the device enters it's access point mode.",
+  "Now please try to conenct your mobile phone to the device access point ": "Now please try to conenct your mobile phone to the device access point ",
+  "Now you have 3 minutes to connect to the device": "Now you have 3 minutes to connect to the device",
+  "Start connection": "Start connection"
 }
