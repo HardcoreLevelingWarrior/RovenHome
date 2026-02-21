@@ -9,6 +9,7 @@ import DeviceScreen from '../screens/DeviceScreen/DeviceScreen';
 import Setting from '../screens/Setting/Setting';
 import BrandScreen from '../screens/BrandScreen/BrandScreen';
 import PickDeviceScreen from '../screens/pickDeviceScreen/PickDeviceScreen';
+import PairingScreen from '../screens/PairingScreen/PairingScreen';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 
@@ -118,6 +119,7 @@ const MainNavigation = () => {
         name={Routes.SetupGuideScreen}
         component={SetupGuideScreen}
       />
+      <Stack.Screen name={Routes.PairingScreen} component={PairingScreen} />
     </Stack.Navigator>
   );
 };

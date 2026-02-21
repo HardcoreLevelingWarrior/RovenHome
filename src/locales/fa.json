@@ -30,5 +30,9 @@
   "Reset your oven so, the device enters it's access point mode.": "فر خود را ریست کنید تادستگاه وارد access point(wifi دستگاه) شود.",
   "Now please try to conenct your mobile phone to the device access point ": "حالا اجازه دهید موبایل به قسمت access point(wifi دستگاه) برود.",
   "Now you have 3 minutes to connect to the device": "حالا ۳ دقیقه صبر کنید تا به دستگاه وصل شود.",
-  "Start connection": "شروع اتصال"
+  "Start connection": "شروع اتصال",
+  "Tab the button to discover nearby networks": "برای پیدا کردن شبکه های اطراف روی دکمه کلیک کنید.",
+  "Scan Wifi": "اسکن وای‌فای",
+  "Choose Wifi": "انتخاب وای‌فای",
+  "Pairing your device": "همگام‌سازی دستگاه"
 }

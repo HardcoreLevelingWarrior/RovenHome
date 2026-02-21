@@ -12,4 +12,7 @@ export type RootStackParamList = {
   [Routes.SetupGuideScreen]: {
     device: Devices;
   };
+  [Routes.PairingScreen]: {
+    device: Devices;
+  };
 };
