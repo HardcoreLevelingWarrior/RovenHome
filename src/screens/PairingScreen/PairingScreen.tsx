@@ -1,5 +1,3 @@
-// src/screens/PairingScreen.tsx
-// src/screens/PairingScreen.tsx
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
@@ -8,123 +6,98 @@ import {
   FlatList,
   ActivityIndicator,
   StyleSheet,
-  Alert,
+  Appearance,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../context/themeContext';
 import { useTranslation } from 'react-i18next';
 import CustomText from '../../components/customText';
-import PairingService, {
-  WifiNetwork,
-  PairingStatus,
-  DeviceInfo,
-} from '../../services/pairing/PairingService';
-import AlertModal from './components/AlertModal'; // مسیر AlertModal خودت رو درست کن
+import PairingService from '../../services/pairing/PairingService';
+import AlertModal from './components/AlertModal';
+import { usePairingStore } from '../../stores/pairingStore';
+import { WifiNetwork } from '../../stores/types';
+import { useNavigation } from '@react-navigation/native';
+import { Routes } from '../../navigation/Routes';
 
 const IP_ADDRESS = '192.168.4.1';
 const PORT = 5000;
 
 export default function PairingScreen() {
   const { theme } = useTheme();
-  const { colors, typography } = theme;
+  const { colors, spacing, typography } = theme;
   const { t } = useTranslation();
+  const navigation = useNavigation<any>();
 
-  const [status, setStatus] = useState<PairingStatus>('idle');
-  const [wifiList, setWifiList] = useState<WifiNetwork[]>([]);
+  const { status, wifiList, error: storeError, setError } = usePairingStore();
   const [selectedSsid, setSelectedSsid] = useState<string | null>(null);
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  // const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // برای مدیریت مودال‌ها
   const [showNoWifiModal, setShowNoWifiModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [modalErrorText, setModalErrorText] = useState('');
 
-  // const pairing = PairingService.getInstance();
+  const pairing = PairingService.getInstance();
 
-  // ─── Lifecycle ───────────────────────────────────────────────
-  // useEffect(() => {
-  //   let isMounted = true;
+  useEffect(() => {
+    let isMounted = true;
 
-  //   const initialize = async () => {
-  //     if (!isMounted) return;
-  //     setIsLoading(true);
-  //     setErrorMessage(null);
+    const initialize = async () => {
+      if (!isMounted) return;
+      setIsLoading(true);
+      setError(null);
 
-  //     try {
-  //       const connected = await pairing.startPairing(IP_ADDRESS, PORT);
-  //       if (connected && isMounted) {
-  //         // خودکار اسکن کنیم بعد از اتصال موفق
-  //         pairing.sendScanWifi();
-  //         setIsLoading(true); // منتظر لیست وای‌فای
-  //       }
-  //     } catch (err: any) {
-  //       const msg = err?.message || t('Failed to connect to device');
-  //       if (isMounted) {
-  //         setErrorMessage(msg);
-  //         setModalErrorText(msg);
-  //         setShowErrorModal(true);
-  //       }
-  //     } finally {
-  //       if (isMounted) setIsLoading(false);
-  //     }
-  //   };
-
-  //   initialize();
-
-    // Listenerها
-    const subscriptions = [
-      pairing.addListener('statusChanged', (newStatus: PairingStatus) => {
-        if (isMounted) setStatus(newStatus);
-      }),
-      pairing.addListener('wifiListReceived', (list: WifiNetwork[]) => {
-        if (isMounted) {
-          setWifiList(list);
-          setIsLoading(false);
-          if (list.length === 0) {
-            setShowNoWifiModal(true);
-          }
+      try {
+        const connected = await pairing.startPairing(IP_ADDRESS, PORT);
+        if (connected && isMounted) {
+          pairing.sendScanWifi();
+          setIsLoading(true);
         }
-      }),
-      pairing.addListener('pairingSuccess', (device: DeviceInfo) => {
+      } catch (err: any) {
+        const msg = err?.message || t('Failed to connect to device');
         if (isMounted) {
-          setShowSuccessModal(true);
-          // اینجا می‌تونی navigation به صفحه اصلی یا devices بذاری
-          // مثلاً: navigation.navigate('Devices');
-        }
-      }),
-      pairing.addListener('pairingError', (msg: string) => {
-        if (isMounted) {
-          setErrorMessage(msg);
+          setError(msg);
           setModalErrorText(msg);
           setShowErrorModal(true);
-          setIsLoading(false);
         }
-      }),
-    ];
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    };
 
-    // Cleanup مهم
+    initialize();
+
     return () => {
       isMounted = false;
-      subscriptions.forEach(sub => sub.remove());
-      pairing.removeAllListeners();
       pairing.disconnect();
     };
-  }, []); // فقط یک بار موقع mount
+    // }, []);
+  }, [pairing, t, setError]);
 
-  // ─── Handlers ────────────────────────────────────────────────
+  useEffect(() => {
+    if (storeError) {
+      setModalErrorText(storeError);
+      setShowErrorModal(true);
+      setIsLoading(false);
+    }
+  }, [storeError]);
+
+  useEffect(() => {
+    if (status === 'success') {
+      setShowSuccessModal(true);
+    }
+  }, [status]);
+
   const handleRetryScan = useCallback(() => {
-    setErrorMessage(null);
-    setWifiList([]);
+    setError(null);
     setSelectedSsid(null);
     setPassword('');
     if (pairing.isConnected()) {
       pairing.sendScanWifi();
       setIsLoading(true);
     } else {
-      // اگر اتصال قطع شده، دوباره شروع کنیم
       pairing
         .startPairing(IP_ADDRESS, PORT)
         .then(success => {
@@ -138,7 +111,7 @@ export default function PairingScreen() {
           setShowErrorModal(true);
         });
     }
-  }, []);
+  }, [pairing, t]);
 
   const handleSendCredentials = useCallback(() => {
     if (!selectedSsid) {
@@ -146,7 +119,6 @@ export default function PairingScreen() {
       setShowErrorModal(true);
       return;
     }
-
     if (!pairing.isConnected()) {
       setModalErrorText(t('Connection lost. Please try scanning again.'));
       setShowErrorModal(true);
@@ -154,173 +126,247 @@ export default function PairingScreen() {
     }
 
     setIsLoading(true);
-    const success = pairing.sendWifiCredentials(selectedSsid, password.trim());
-    if (!success) {
-      setIsLoading(false);
-    }
-  }, [selectedSsid, password, pairing]);
+    pairing.sendWifiCredentials(selectedSsid, password.trim());
+  }, [selectedSsid, password, pairing, t]);
 
-  const resetForm = useCallback(() => {
-    setWifiList([]);
-    setSelectedSsid(null);
-    setPassword('');
-    setErrorMessage(null);
-    setIsLoading(false);
-  }, []);
+  const renderWifiItem = ({ item }: { item: WifiNetwork }) => {
+    const isSelected = item.ssid === selectedSsid;
 
-  // ─── Render Item ─────────────────────────────────────────────
-  const renderWifiItem = ({ item }: { item: WifiNetwork }) => (
-    <TouchableOpacity
-      style={[
-        styles.wifiRow,
-        // { borderColor: colors.border },
-        item.ssid === selectedSsid && {
-          backgroundColor: colors.primary + '1A',
-        },
-      ]}
-      onPress={() => setSelectedSsid(item.ssid)}
-    >
-      <CustomText style={[styles.ssidText, { color: colors.textPrimary }]}>
-        {item.ssid}
-        {item.rssi !== undefined && `  (${item.rssi} dBm)`}
-        {'  •  '}
-        {item.security}
-      </CustomText>
-    </TouchableOpacity>
-  );
+    return (
+      <TouchableOpacity
+        style={[
+          styles.wifiItem,
+          {
+            backgroundColor: isSelected
+              ? `${colors.primary}15`
+              : colors.surface,
+            borderColor: isSelected ? colors.primary : colors.divider,
+          },
+        ]}
+        onPress={() => setSelectedSsid(item.ssid)}
+        activeOpacity={1}
+      >
+        <CustomText
+          style={{
+            color:
+              colors.textPrimary ||
+              (Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#000000'),
+            fontSize: typography.fontSize.base,
+            flex: 1,
+          }}
+          weight={isSelected ? 'bold' : 'regular'}
+        >
+          {item.ssid}
+        </CustomText>
 
-  // ─── UI ──────────────────────────────────────────────────────
+        <CustomText
+          style={{
+            color:
+              colors.textSecondary ||
+              (Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#000000'),
+            fontSize: typography.fontSize.sm,
+          }}
+        >
+          {item.security || 'Open'} • {item.rssi ? `${item.rssi} dBm` : ''}
+        </CustomText>
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <SafeAreaView
-      style={[styles.screen, { backgroundColor: colors.background }]}
+      style={[
+        styles.screen,
+        { backgroundColor: colors.background || '#ffffff' },
+      ]}
     >
-      <View style={[styles.container, { padding: 24 }]}>
-        <CustomText
-          style={[
-            styles.title,
-            { color: colors.textPrimary, fontSize: typography.fontSize.xxl },
-          ]}
-          weight="bold"
-        >
-          {t('Connect new device')}
-        </CustomText>
-
-        {/* دکمه اسکن وقتی متصل هستیم و هنوز لیست نداریم */}
-        {status === 'connected' && wifiList.length === 0 && !isLoading && (
-          <TouchableOpacity
-            style={[styles.actionButton, { backgroundColor: colors.primary }]}
-            onPress={handleRetryScan}
-            disabled={isLoading}
+      <View
+        style={[
+          styles.container,
+          { paddingHorizontal: spacing.lg, paddingTop: spacing.lg },
+        ]}
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <CustomText
+            style={{
+              color:
+                colors.textPrimary ||
+                (Appearance.getColorScheme() === 'dark'
+                  ? '#ffffff'
+                  : '#000000'),
+              fontSize: typography.fontSize.xxxl,
+              textAlign: 'center',
+            }}
+            weight="bold"
           >
-            <CustomText style={{ color: colors.textPrimary }} weight="bold">
-              {t('Scan Wi-Fi networks')}
-            </CustomText>
-          </TouchableOpacity>
-        )}
-
-        {/* لیست شبکه‌ها */}
-        {wifiList.length > 0 && (
-          <>
-            <CustomText
-              style={[styles.sectionTitle, { color: colors.textPrimary }]}
-              weight="bold"
-            >
-              {t('Available networks')}:
-            </CustomText>
-
-            <FlatList
-              data={wifiList}
-              renderItem={renderWifiItem}
-              keyExtractor={item => item.ssid}
-              style={styles.list}
-              ListEmptyComponent={
-                <CustomText
-                  style={{
-                    color: colors.textSecondary,
-                    textAlign: 'center',
-                    marginTop: 20,
-                  }}
-                >
-                  {t('No networks found')}
-                </CustomText>
-              }
-            />
-
-            {selectedSsid && (
-              <>
-                <CustomText
-                  style={[
-                    styles.label,
-                    { color: colors.textSecondary, marginTop: 24 },
-                  ]}
-                >
-                  {t('Password for')} "{selectedSsid}":
-                </CustomText>
-
-                <TextInput
-                  style={[
-                    styles.input,
-                    {
-                      // borderColor: colors.border,
-                      // backgroundColor: colors.card,
-                      // color: colors.textPrimary,
-                    },
-                  ]}
-                  value={password}
-                  onChangeText={setPassword}
-                  placeholder={t('Enter password (optional for open networks)')}
-                  placeholderTextColor={colors.textSecondary + '80'}
-                  secureTextEntry
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                />
-
-                <TouchableOpacity
-                  style={[
-                    styles.actionButton,
-                    { backgroundColor: colors.primary },
-                  ]}
-                  onPress={handleSendCredentials}
-                  disabled={isLoading}
-                >
-                  <CustomText
-                    style={{ color: colors.textPrimary }}
-                    weight="bold"
-                  >
-                    {t('Connect device to Wi-Fi')}
-                  </CustomText>
-                </TouchableOpacity>
-              </>
-            )}
-          </>
-        )}
+            {t('Connect new device')}
+          </CustomText>
+          <CustomText
+            style={{
+              color: colors.textSecondary,
+              fontSize: typography.fontSize.base,
+              marginTop: spacing.sm,
+              textAlign: 'center',
+            }}
+          >
+            {t('Select Wi-Fi network and enter password to configure device')}
+          </CustomText>
+        </View>
 
         {isLoading && (
-          <ActivityIndicator
-            size="large"
-            color={colors.primary}
-            style={styles.loader}
-          />
+          <View style={styles.centered}>
+            <ActivityIndicator size="large" color={colors.primary} />
+            <CustomText
+              style={{ color: colors.textSecondary, marginTop: spacing.md }}
+            >
+              {t('Scanning...')}
+            </CustomText>
+          </View>
         )}
 
-        <CustomText
-          style={[styles.statusText, { color: colors.textSecondary }]}
-        >
-          {t('Status')}: {status}
-        </CustomText>
+        {!isLoading && storeError && (
+          <View style={[styles.errorBanner, { borderColor: colors.error }]}>
+            <CustomText style={{ color: colors.error }}>
+              {storeError}
+            </CustomText>
+          </View>
+        )}
 
-        {errorMessage && (
-          <CustomText style={[styles.errorText, { color: colors.error }]}>
-            {t('Error')}: {errorMessage}
-          </CustomText>
+        {!isLoading && (
+          <>
+            {status === 'connected' && wifiList.length === 0 && (
+              <View style={styles.emptyState}>
+                <CustomText
+                  style={{
+                    color:
+                      colors.textPrimary ||
+                      (Appearance.getColorScheme() === 'dark'
+                        ? '#ffffff'
+                        : '#000000'),
+                    fontSize: typography.fontSize.xl,
+                  }}
+                  weight="bold"
+                >
+                  {t('Device connected – ready to scan')}
+                </CustomText>
+                <TouchableOpacity
+                  style={[
+                    styles.primaryButton,
+                    { backgroundColor: colors.primary },
+                  ]}
+                  onPress={handleRetryScan}
+                >
+                  <CustomText style={{ color: '#ffffff' }} weight="bold">
+                    {t('Scan Wi-Fi networks')}
+                  </CustomText>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {wifiList.length > 0 && (
+              <>
+                <CustomText
+                  style={{
+                    color:
+                      colors.textPrimary ||
+                      (Appearance.getColorScheme() === 'dark'
+                        ? '#ffffff'
+                        : '#000000'),
+                    fontSize: typography.fontSize.xl,
+                    marginVertical: spacing.md,
+                  }}
+                  weight="bold"
+                >
+                  {t('Available networks')}
+                </CustomText>
+
+                <FlatList
+                  data={wifiList}
+                  renderItem={renderWifiItem}
+                  keyExtractor={item => item.ssid}
+                  showsVerticalScrollIndicator={false}
+                  contentContainerStyle={{ paddingBottom: spacing.xl }}
+                />
+
+                {selectedSsid && (
+                  <View
+                    style={[
+                      styles.credentialsBox,
+                      { backgroundColor: colors.surface },
+                    ]}
+                  >
+                    <CustomText
+                      style={{
+                        color:
+                          colors.textPrimary ||
+                          (Appearance.getColorScheme() === 'dark'
+                            ? '#ffffff'
+                            : '#000000'),
+                        fontSize: typography.fontSize.lg,
+                        marginBottom: spacing.sm,
+                      }}
+                      weight="bold"
+                    >
+                      {t('Password for')} "{selectedSsid}"
+                    </CustomText>
+
+                    <TextInput
+                      style={[
+                        styles.input,
+                        {
+                          borderColor: colors.divider,
+                          color: colors.textPrimary,
+                          backgroundColor: colors.background,
+                        },
+                      ]}
+                      value={password}
+                      onChangeText={setPassword}
+                      placeholder={t('Enter password')}
+                      placeholderTextColor={`${colors.textSecondary}80`}
+                      secureTextEntry
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      returnKeyType="done"
+                    />
+
+                    <TouchableOpacity
+                      style={[
+                        styles.primaryButton,
+                        {
+                          backgroundColor: colors.primary,
+                          marginTop: spacing.md,
+                        },
+                      ]}
+                      onPress={handleSendCredentials}
+                    >
+                      <CustomText style={{ color: '#ffffff' }} weight="bold">
+                        {t('Connect device')}
+                      </CustomText>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </>
+            )}
+
+            <CustomText
+              style={{
+                color: colors.textSecondary,
+                textAlign: 'center',
+                marginTop: spacing.xl,
+                fontSize: typography.fontSize.sm,
+              }}
+            >
+              Status: {status}
+            </CustomText>
+          </>
         )}
       </View>
 
-      {/* مودال‌ها */}
+      {/* Modals */}
       <AlertModal
         alertVisible={showNoWifiModal}
         setAlertVisible={setShowNoWifiModal}
-        // title={t('No networks found')}
         message={t(
           'No Wi-Fi networks were detected. Make sure the device is in pairing mode.',
         )}
@@ -334,12 +380,10 @@ export default function PairingScreen() {
       <AlertModal
         alertVisible={showSuccessModal}
         setAlertVisible={setShowSuccessModal}
-        // title={t('Success')}
         message={t('Device configured successfully!')}
         onConfirm={() => {
           setShowSuccessModal(false);
-          resetForm();
-          // navigation.navigate('...') ← اینجا بذار اگر نیاز داری
+          navigation.navigate('MainTab', { screen: Routes.HomeScreen });
         }}
         confirmText={t('Done')}
       />
@@ -359,30 +403,46 @@ export default function PairingScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   container: { flex: 1 },
-  title: { textAlign: 'center', marginBottom: 32 },
-  sectionTitle: { marginTop: 8, marginBottom: 12, fontSize: 18 },
-  label: { marginBottom: 8, fontSize: 16 },
+  header: { alignItems: 'center', marginBottom: 32 },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  errorBanner: {
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginBottom: 24,
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 80,
+  },
+  credentialsBox: {
+    marginTop: 24,
+    padding: 20,
+    borderRadius: 16,
+    borderWidth: 1,
+  },
   input: {
     borderWidth: 1,
     borderRadius: 12,
     padding: 14,
     fontSize: 16,
-    marginBottom: 24,
+    marginBottom: 20,
   },
-  list: { maxHeight: 360, marginBottom: 16 },
-  wifiRow: {
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-  },
-  ssidText: { fontSize: 16 },
-  actionButton: {
+  primaryButton: {
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
-    marginVertical: 12,
   },
-  loader: { marginVertical: 48 },
-  statusText: { marginTop: 32, textAlign: 'center', fontSize: 15 },
-  errorText: { marginTop: 12, textAlign: 'center', fontSize: 15 },
+  wifiItem: {
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderWidth: 1,
+    borderRadius: 12,
+    marginBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
 });
-

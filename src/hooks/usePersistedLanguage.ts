@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { MMKV, useMMKV, createMMKV } from 'react-native-mmkv';
 import { useTranslation } from 'react-i18next';
-import { storage } from '../services/storage/storage';
+import { storage } from '../storage/storage';
 
 // ساخت instance (یکی از دو روش زیر کافیه)
 

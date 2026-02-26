@@ -2,6 +2,32 @@ import TcpSocket from 'react-native-tcp-socket';
 import { NativeEventEmitter } from 'react-native';
 import { Buffer } from 'buffer';
 
+// class PairingManager {
+//   // تک نمونه
+//   static shared = new PairingManager()
+
+//   // وضعیت فعلی
+//   status: 'idle' | 'connecting' | ... = 'idle'
+
+//   // سوکت فعال
+//   socket: TcpSocketClient | null = null
+
+//   // اطلاعات موقتی دستگاه
+//   device: { ip: string, port: number, ssid?: string } | null = null
+
+//   // تایمر heartbeat
+//   heartbeat?: number = null
+
+//   // متدهای عمومی
+//   async connectToDevice(ip: string, port = 5000)
+//   sendScanRequest()
+//   sendWifiCredentials(ssid: string, pass: string)
+//   disconnect()
+
+//   // listener ها
+//   on(event: 'wifiList' | 'success' | 'error' | 'status', callback)
+// }
+
 type PairingEvents = {
   wifiListReceived: (list: WifiNetwork[]) => void;
   pairingSuccess: (device: DeviceInfo) => void;
@@ -52,6 +78,13 @@ export default class testPairingSevice {
     this.emitter.emit('statusChanged', status);
   }
 
+  private startHeartbeat() {
+    //this.stopHeartbeat()
+    // this.heartbeatTimer = setInterval(() =>{
+    //   if(this.)
+    // })
+  }
+
   private handleClose() {
     if (this.currentStatus !== 'success') {
       this.setStatus = 'failed';
@@ -63,5 +96,22 @@ export default class testPairingSevice {
 
   // private handleIncomingData () {
 
+  // }
+
+  ///////////////////////////////////////////
+  public async startPairing(ip: string, port: number = 5000) {
+    if (this.currentStatus === 'idle') {
+      console.warn('Pairing in progress');
+      return false;
+    }
+    // if (this.client) this.disconnect
+
+    if (!ip || !/^(?:\d{1,3}\.){3}\d{1,3}$/.test(ip)) {
+      throw new Error('آدرس IP نامعتبر');
+    }
+  }
+
+  // public isConnected() :boolean {
+  //   return this.client !this.client.distroyed
   // }
 }

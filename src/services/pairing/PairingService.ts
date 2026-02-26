@@ -1,46 +1,23 @@
 import TcpSocket from 'react-native-tcp-socket';
-import { NativeEventEmitter } from 'react-native';
 import { Buffer } from 'buffer';
 
-type PairingEvents = {
-  wifiListReceived: (list: WifiNetwork[]) => void;
-  pairingSuccess: (device: DeviceInfo) => void;
-  pairingError: (error: string) => void;
-  statusChanged: (status: PairingStatus) => void;
-};
+// توجه: import store و types
+import { usePairingStore } from '../../stores/pairingStore'; // مسیر را درست کن (یا هر alias/path که داری)
+import type {
+  PairingStatus,
+  WifiNetwork,
+  DeviceInfo,
+} from '../../stores/types'; // یا مسیر types
 
-export type WifiNetwork = {
-  ssid: string;
-  rssi?: number;
-  security: string;
-};
-
-export type PairingStatus =
-  | 'idle'
-  | 'connecting'
-  | 'connected'
-  | 'scanning'
-  | 'sendingCredentials'
-  | 'success'
-  | 'failed';
-
-export interface DeviceInfo {
-  id: string;
-  name: string;
-  ip: string;
-  port: number;
-  ssid?: string;
-  status: 'paired' | 'online' | 'offline' | 'error';
-}
+// دیگر نیازی به PairingEvents و NativeEventEmitter نیست
 
 export default class PairingService {
   private static instance: PairingService | null = null;
 
-  private emitter = new NativeEventEmitter();
-  private client: any | null = null;
+  private client: any | null = null; // نوع دقیق‌تر
   private currentStatus: PairingStatus = 'idle';
   private tempDeviceInfo: Partial<DeviceInfo> = {};
-  private heartbeatTimer: number | null = null;
+  private heartbeatTimer: number | null = null; // بهتر از number
 
   private constructor() {}
 
@@ -57,7 +34,7 @@ export default class PairingService {
 
   private setStatus(status: PairingStatus) {
     this.currentStatus = status;
-    this.emitter.emit('statusChanged', status);
+    usePairingStore.getState().setStatus(status); // ← آپدیت store
     console.log('[STATUS]', status);
   }
 
@@ -71,13 +48,6 @@ export default class PairingService {
       }
 
       try {
-        console.log(
-          'destroyed?',
-          this.client?.destroyed,
-          'writable?',
-          this.client?.writable,
-        );
-        // this.client!.write('PING\n');
         this.client!.write('PING\n', 'utf8', (err?: Error) => {
           if (err) {
             console.log('PING write error', err);
@@ -85,24 +55,20 @@ export default class PairingService {
             console.log('PING sent OK');
           }
         });
-        // console.log('[HEARTBEAT] PING sent');
       } catch (err) {
         console.log('[HEARTBEAT] failed → disconnect', err);
         this.disconnect();
       }
-    }, 10000); // هر ۱۰ ثانیه – قابل تنظیم
+    }, 10000);
   }
 
   private stopHeartbeat() {
-    if (this.heartbeatTimer !== null) {
+    if (this.heartbeatTimer) {
       clearInterval(this.heartbeatTimer);
       this.heartbeatTimer = null;
     }
   }
 
-  // public isConnected(): boolean {
-  //   return !!this.client && !this.client.destroyed && this.client.writable;
-  // }
   public isConnected(): boolean {
     return !!this.client && !this.client.destroyed;
   }
@@ -133,19 +99,8 @@ export default class PairingService {
         () => {
           clearTimeout(timeout);
           this.setStatus('connected');
-          this.startHeartbeat(); // ← heartbeat شروع می‌شود
+          this.startHeartbeat();
           resolve(true);
-          //test
-          //   this.client.write('PING\n');
-          //   console.log(
-          //     'connected, destroyed?',
-          //     this.client.destroyed,
-          //     'writable?',
-          //     this.client.writable,
-          //   );
-          //   this.client.write('TEST\n', 'utf8', (e: any) =>
-          //     console.log('test write cb', e),
-          //   );
         },
       );
 
@@ -168,6 +123,7 @@ export default class PairingService {
   public sendScanWifi(): boolean {
     if (!this.isConnected()) {
       console.warn('No active connection');
+      usePairingStore.getState().setError('اتصال وجود ندارد');
       return false;
     }
     this.setStatus('scanning');
@@ -177,13 +133,13 @@ export default class PairingService {
 
   public sendWifiCredentials(ssid: string, password: string): boolean {
     if (!this.isConnected()) {
-      this.emitter.emit('pairingError', 'اتصال وجود ندارد یا قطع شده');
+      usePairingStore.getState().setError('اتصال وجود ندارد یا قطع شده');
       this.setStatus('failed');
       return false;
     }
 
     if (!ssid) {
-      this.emitter.emit('pairingError', 'SSID انتخاب نشده');
+      usePairingStore.getState().setError('SSID انتخاب نشده');
       return false;
     }
 
@@ -199,20 +155,18 @@ export default class PairingService {
     this.client!.write(command, 'utf8', (err?: Error) => {
       if (err) {
         console.error('[WRITE ERROR]', err.message);
-        this.emitter.emit('pairingError', 'خطا در ارسال: ' + err.message);
+        usePairingStore.getState().setError('خطا در ارسال: ' + err.message);
         this.setStatus('failed');
       } else {
         console.log('[WRITE OK]');
       }
     });
 
-    // timeout اگر پاسخی نیومد
     setTimeout(() => {
       if (this.currentStatus === 'sendingCredentials') {
-        this.emitter.emit(
-          'pairingError',
-          'Timeout - پاسخی از دستگاه دریافت نشد',
-        );
+        usePairingStore
+          .getState()
+          .setError('Timeout - پاسخی از دستگاه دریافت نشد');
         this.setStatus('failed');
         this.disconnect();
       }
@@ -225,19 +179,39 @@ export default class PairingService {
     const msg = data.toString('utf8').trim();
     console.log('[RECV]', msg);
 
+    const store = usePairingStore.getState();
+
     if (msg.startsWith('WIFI_LIST:')) {
       const list = this.parseWifiList(msg);
-      this.emitter.emit('wifiListReceived', list);
-    } else if (msg === 'WIFI_CONNECTED' || msg.includes('SUCCESS')) {
+      store.setWifiList(list);
+    } else if (msg === 'WIFI_CONNECTED' || msg.includes('CONNECTED:')) {
+      const [ip, portStr, name] = msg
+        .replace('CONNECTED:', '')
+        .slice(1, -1)
+        .split(',');
+
+      const device: DeviceInfo = {
+        id: `dev_${Date.now().toString(36)}${Math.random()
+          .toString(36)
+          .slice(2, 8)}`,
+        name: name.trim() || 'Device',
+        ip: ip.trim(),
+        port: Number.parseInt(portStr.trim(), 10),
+        ssid: this.tempDeviceInfo.ssid,
+        status: 'paired',
+      };
+
+      store.addDevice(device); // ← ذخیره در store (که persist می‌شود)
       this.finishPairingSuccess();
     } else if (msg.includes('ERROR') || msg.includes('FAIL')) {
-      this.emitter.emit('pairingError', msg);
+      store.setError(msg);
       this.setStatus('failed');
     }
-    // می‌تونی اینجا PONG رو هم ignore کنی اگر دستگاه جواب PING می‌ده
+    // اگر PONG آمد می‌توانی ignore کنی
   }
 
   private parseWifiList(msg: string): WifiNetwork[] {
+    // همان کد قبلی بدون تغییر
     let content = msg.replace('WIFI_LIST:', '').trim();
 
     if (content.startsWith('[') && content.endsWith(']')) {
@@ -272,30 +246,20 @@ export default class PairingService {
 
   private finishPairingSuccess() {
     if (!this.tempDeviceInfo.ip || !this.tempDeviceInfo.port) {
-      this.emitter.emit('pairingError', 'اطلاعات دستگاه ناقص');
+      usePairingStore.getState().setError('اطلاعات دستگاه ناقص');
       this.setStatus('failed');
       return;
     }
 
-    const device: DeviceInfo = {
-      id: `dev_${Date.now().toString(36)}${Math.random()
-        .toString(36)
-        .slice(2, 8)}`,
-      name: this.tempDeviceInfo.name || 'Device',
-      ip: this.tempDeviceInfo.ip,
-      port: this.tempDeviceInfo.port,
-      ssid: this.tempDeviceInfo.ssid,
-      status: 'paired',
-    };
-
-    this.emitter.emit('pairingSuccess', device);
+    // device قبلاً در handleIncomingData ساخته و اضافه شده
     this.disconnect();
+    this.setStatus('success'); // یا می‌توانی success را هم در store داشته باشی
   }
 
   private handleError(err: any) {
     const msg = err?.message || 'خطای اتصال';
     console.error('[ERROR]', msg);
-    this.emitter.emit('pairingError', msg);
+    usePairingStore.getState().setError(msg);
     this.setStatus('failed');
     this.disconnect();
   }
@@ -303,8 +267,8 @@ export default class PairingService {
   private handleClose() {
     console.log('[CLOSE] status was:', this.currentStatus);
     if (this.currentStatus !== 'success' && this.currentStatus !== 'failed') {
+      usePairingStore.getState().setError('اتصال غیرمنتظره بسته شد');
       this.setStatus('failed');
-      this.emitter.emit('pairingError', 'اتصال غیرمنتظره بسته شد');
     }
     this.stopHeartbeat();
     this.client = null;
@@ -318,19 +282,5 @@ export default class PairingService {
     this.client = null;
     this.setStatus('idle');
     this.tempDeviceInfo = {};
-  }
-
-  public addListener<K extends keyof PairingEvents>(
-    event: K,
-    listener: PairingEvents[K],
-  ) {
-    return this.emitter.addListener(
-      event,
-      listener as (...args: any[]) => void,
-    );
-  }
-
-  public removeAllListeners(event?: string) {
-    if (event) this.emitter.removeAllListeners(event);
   }
 }

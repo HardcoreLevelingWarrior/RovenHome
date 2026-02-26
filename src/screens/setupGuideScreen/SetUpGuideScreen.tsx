@@ -33,33 +33,20 @@ export default function SetupGuideScreen() {
   const navigation = useNavigation<any>();
   const device = route.params?.device as Devices | undefined;
 
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [connectionError, setConnectionError] = useState<string | null>(null);
-  const [showErrorModal, setShowErrorModal] = useState(false);
+  // const [isConnecting, setIsConnecting] = useState(false);
+  // const [connectionError, setConnectionError] = useState<string | null>(null);
+  // const [showErrorModal, setShowErrorModal] = useState(false);
 
   // const pairing = PairingService.getInstance();
 
   const handleStartConnection = async () => {
     if (!device) return;
 
-    setIsConnecting(true);
-    setConnectionError(null);
-    setShowErrorModal(false);
+    // setIsConnecting(true);
+    // setConnectionError(null);
+    // setShowErrorModal(false);
 
     navigation.navigate(Routes.PairingScreen, { device });
-    // try {
-    //   const connected = await pairing.startPairing(IP_ADDRESS, PORT);
-    //   if (connected) {
-    //     // موفق → برو به صفحه pairing
-    //     pairing.sendScanWifi();
-    //   }
-    // } catch (err: any) {
-    //   const msg = err?.message || t('Failed to connect to device');
-    //   setConnectionError(msg);
-    //   setShowErrorModal(true);
-    // } finally {
-    //   setIsConnecting(false);
-    // }
   };
 
   if (!device) {
@@ -139,9 +126,9 @@ export default function SetupGuideScreen() {
       <TouchableOpacity
         style={[styles.startConfigBtn, { backgroundColor: colors.primary }]}
         onPress={handleStartConnection}
-        disabled={isConnecting}
+        // disabled={isConnecting}
       >
-        {isConnecting ? (
+        {/* {isConnecting ? (
           <ActivityIndicator color={colors.textPrimary || '#fff'} />
         ) : (
           <CustomText
@@ -150,17 +137,23 @@ export default function SetupGuideScreen() {
           >
             {t('Start connection')}
           </CustomText>
-        )}
+        )} */}
+        <CustomText
+          style={{ color: colors.textPrimary, fontWeight: '600' }}
+          weight="bold"
+        >
+          {t('Start connection')}
+        </CustomText>
       </TouchableOpacity>
 
       {/* Alert در صورت شکست اتصال */}
-      <AlertModal
+      {/* <AlertModal
         alertVisible={showErrorModal}
         setAlertVisible={setShowErrorModal}
         children={`${t('Connection failed')}: ${
           connectionError || t('Unknown error')
         }`}
-      />
+      /> */}
     </SafeAreaView>
   );
 }

@@ -27,9 +27,9 @@ interface AlertModalProps {
 export default function AlertModal({
   alertVisible,
   setAlertVisible,
-  title = 'اطلاع',
+  title = 'notofication',
   message,
-  confirmText = 'تأیید',
+  confirmText = 'confirm',
   onConfirm,
   cancelText,
   onCancel,
@@ -60,8 +60,8 @@ export default function AlertModal({
           style={[
             styles.modalContainer,
             {
-              // backgroundColor: colors.card || '#fff',
-              // borderColor: colors.border,
+              backgroundColor: colors.background || '#fff',
+              borderColor: colors.surface,
             },
           ]}
         >
