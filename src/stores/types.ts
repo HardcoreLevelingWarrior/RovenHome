@@ -19,8 +19,9 @@ export interface DeviceInfo {
   ip: string;
   port: number;
   ssid?: string;
-  status: 'paired' | 'online' | 'offline' | 'error';
+  status: 'paired' | 'online' | 'offline' | 'error' | 'connecting';
   lastSeen?: string; // اختیاری: آخرین باری که آنلاین بود (ISO string)
+  type?: 'oven' | 'hood' | 'fridge' | 'other';
 }
 
 export interface Device {

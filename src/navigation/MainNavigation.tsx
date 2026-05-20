@@ -10,6 +10,7 @@ import Setting from '../screens/Setting/Setting';
 import BrandScreen from '../screens/BrandScreen/BrandScreen';
 import PickDeviceScreen from '../screens/pickDeviceScreen/PickDeviceScreen';
 import PairingScreen from '../screens/PairingScreen/PairingScreen';
+import OvenControlScreen from '../screens/OvenControlScreen/OvenControlScreen';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 
@@ -108,6 +109,7 @@ const MainNavigation = () => {
       initialRouteName="MainTab"
     >
       <Stack.Screen name="MainTab" component={TabNavigator} />
+
       <Stack.Screen name={Routes.HomeScreen} component={HomeScreen} />
       <Stack.Screen name={Routes.AddDeviceScreen} component={AddDeviceScreen} />
       <Stack.Screen name={Routes.BrandScreen} component={BrandScreen} />
@@ -120,6 +122,13 @@ const MainNavigation = () => {
         component={SetupGuideScreen}
       />
       <Stack.Screen name={Routes.PairingScreen} component={PairingScreen} />
+      <Stack.Screen
+        name={Routes.OvenControlScreen}
+        component={OvenControlScreen}
+      />
+      {/* <Stack.Screen name="HoodControl" component={HoodControlScreen} />
+<Stack.Screen name="FridgeControl" component={FridgeControlScreen} />
+<Stack.Screen name="DeviceDetail" component={DeviceDetailScreen} /> */}
     </Stack.Navigator>
   );
 };

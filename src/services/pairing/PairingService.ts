@@ -2,7 +2,7 @@ import TcpSocket from 'react-native-tcp-socket';
 import { Buffer } from 'buffer';
 
 // توجه: import store و types
-import { usePairingStore } from '../../stores/pairingStore'; // مسیر را درست کن (یا هر alias/path که داری)
+import { useApplicationStore } from '../../stores/ApplicationStore'; // مسیر را درست کن (یا هر alias/path که داری)
 import type {
   PairingStatus,
   WifiNetwork,
@@ -34,7 +34,7 @@ export default class PairingService {
 
   private setStatus(status: PairingStatus) {
     this.currentStatus = status;
-    usePairingStore.getState().setStatus(status); // ← آپدیت store
+    useApplicationStore.getState().setStatus(status); // ← آپدیت store
     console.log('[STATUS]', status);
   }
 
@@ -123,7 +123,7 @@ export default class PairingService {
   public sendScanWifi(): boolean {
     if (!this.isConnected()) {
       console.warn('No active connection');
-      usePairingStore.getState().setError('اتصال وجود ندارد');
+      useApplicationStore.getState().setError('اتصال وجود ندارد');
       return false;
     }
     this.setStatus('scanning');
@@ -133,13 +133,13 @@ export default class PairingService {
 
   public sendWifiCredentials(ssid: string, password: string): boolean {
     if (!this.isConnected()) {
-      usePairingStore.getState().setError('اتصال وجود ندارد یا قطع شده');
+      useApplicationStore.getState().setError('اتصال وجود ندارد یا قطع شده');
       this.setStatus('failed');
       return false;
     }
 
     if (!ssid) {
-      usePairingStore.getState().setError('SSID انتخاب نشده');
+      useApplicationStore.getState().setError('SSID انتخاب نشده');
       return false;
     }
 
@@ -155,7 +155,7 @@ export default class PairingService {
     this.client!.write(command, 'utf8', (err?: Error) => {
       if (err) {
         console.error('[WRITE ERROR]', err.message);
-        usePairingStore.getState().setError('خطا در ارسال: ' + err.message);
+        useApplicationStore.getState().setError('خطا در ارسال: ' + err.message);
         this.setStatus('failed');
       } else {
         console.log('[WRITE OK]');
@@ -164,7 +164,7 @@ export default class PairingService {
 
     setTimeout(() => {
       if (this.currentStatus === 'sendingCredentials') {
-        usePairingStore
+        useApplicationStore
           .getState()
           .setError('Timeout - پاسخی از دستگاه دریافت نشد');
         this.setStatus('failed');
@@ -179,7 +179,7 @@ export default class PairingService {
     const msg = data.toString('utf8').trim();
     console.log('[RECV]', msg);
 
-    const store = usePairingStore.getState();
+    const store = useApplicationStore.getState();
 
     if (msg.startsWith('WIFI_LIST:')) {
       const list = this.parseWifiList(msg);
@@ -190,6 +190,17 @@ export default class PairingService {
         .slice(1, -1)
         .split(',');
 
+      let deviceType: 'oven' | 'hood' | 'fridge' | 'other';
+      if (name === 'OVEN') {
+        deviceType = 'oven';
+      } else if (name === 'HOOD') {
+        deviceType = 'hood';
+      } else if (name === 'FRIDGE') {
+        deviceType = 'fridge';
+      } else {
+        deviceType = 'other';
+      }
+
       const device: DeviceInfo = {
         id: `dev_${Date.now().toString(36)}${Math.random()
           .toString(36)
@@ -199,6 +210,7 @@ export default class PairingService {
         port: Number.parseInt(portStr.trim(), 10),
         ssid: this.tempDeviceInfo.ssid,
         status: 'paired',
+        type: deviceType,
       };
 
       store.addDevice(device); // ← ذخیره در store (که persist می‌شود)
@@ -246,7 +258,7 @@ export default class PairingService {
 
   private finishPairingSuccess() {
     if (!this.tempDeviceInfo.ip || !this.tempDeviceInfo.port) {
-      usePairingStore.getState().setError('اطلاعات دستگاه ناقص');
+      useApplicationStore.getState().setError('اطلاعات دستگاه ناقص');
       this.setStatus('failed');
       return;
     }
@@ -259,7 +271,7 @@ export default class PairingService {
   private handleError(err: any) {
     const msg = err?.message || 'خطای اتصال';
     console.error('[ERROR]', msg);
-    usePairingStore.getState().setError(msg);
+    useApplicationStore.getState().setError(msg);
     this.setStatus('failed');
     this.disconnect();
   }
@@ -267,7 +279,7 @@ export default class PairingService {
   private handleClose() {
     console.log('[CLOSE] status was:', this.currentStatus);
     if (this.currentStatus !== 'success' && this.currentStatus !== 'failed') {
-      usePairingStore.getState().setError('اتصال غیرمنتظره بسته شد');
+      useApplicationStore.getState().setError('اتصال غیرمنتظره بسته شد');
       this.setStatus('failed');
     }
     this.stopHeartbeat();

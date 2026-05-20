@@ -14,6 +14,8 @@ export const darkTheme = {
     card: '#1e1e1e',
     border: '#555555',
     textOnPrimary: '#ffffff',
+    success: '#4caf50', // ← سبز روشن‌تر برای تم تاریک
+    warning: '#ffb74d',
   },
   spacing,
   typography,

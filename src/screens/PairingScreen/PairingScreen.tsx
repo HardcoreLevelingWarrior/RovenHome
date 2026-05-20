@@ -14,10 +14,11 @@ import { useTranslation } from 'react-i18next';
 import CustomText from '../../components/customText';
 import PairingService from '../../services/pairing/PairingService';
 import AlertModal from './components/AlertModal';
-import { usePairingStore } from '../../stores/pairingStore';
+import { useApplicationStore } from '../../stores/ApplicationStore';
 import { WifiNetwork } from '../../stores/types';
 import { useNavigation } from '@react-navigation/native';
 import { Routes } from '../../navigation/Routes';
+import { useFocusEffect } from '@react-navigation/native';
 
 const IP_ADDRESS = '192.168.4.1';
 const PORT = 5000;
@@ -28,7 +29,12 @@ export default function PairingScreen() {
   const { t } = useTranslation();
   const navigation = useNavigation<any>();
 
-  const { status, wifiList, error: storeError, setError } = usePairingStore();
+  const {
+    status,
+    wifiList,
+    error: storeError,
+    setError,
+  } = useApplicationStore();
   const [selectedSsid, setSelectedSsid] = useState<string | null>(null);
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -41,40 +47,82 @@ export default function PairingScreen() {
 
   const pairing = PairingService.getInstance();
 
-  useEffect(() => {
-    let isMounted = true;
+  // useEffect(() => {
+  //   let isMounted = true;
 
-    const initialize = async () => {
-      if (!isMounted) return;
-      setIsLoading(true);
-      setError(null);
+  //   const initialize = async () => {
+  //     if (!isMounted) return;
+  //     setIsLoading(true);
+  //     setError(null);
 
-      try {
-        const connected = await pairing.startPairing(IP_ADDRESS, PORT);
-        if (connected && isMounted) {
-          pairing.sendScanWifi();
-          setIsLoading(true);
+  //     try {
+  //       const connected = await pairing.startPairing(IP_ADDRESS, PORT);
+  //       if (connected && isMounted) {
+  //         pairing.sendScanWifi();
+  //         setIsLoading(true);
+  //       }
+  //     } catch (err: any) {
+  //       const msg = err?.message || t('Failed to connect to device');
+  //       if (isMounted) {
+  //         setError(msg);
+  //         setModalErrorText(msg);
+  //         setShowErrorModal(true);
+  //       }
+  //     } finally {
+  //       if (isMounted) setIsLoading(false);
+  //     }
+  //   };
+
+  //   initialize();
+
+  //   return () => {
+  //     isMounted = false;
+  //     pairing.disconnect();
+  //   };
+  //   // }, []);
+  // }, [pairing, t, setError]);
+
+  // فقط این useEffect رو جایگزین کن
+
+  useFocusEffect(
+    useCallback(() => {
+      let isMounted = true;
+
+      const initialize = async () => {
+        if (!isMounted) return;
+
+        // ریست state برای ورود تازه
+        setIsLoading(true);
+        setError(null);
+        setSelectedSsid(null);
+        setPassword('');
+        // اختیاری: setWifiList([]) اگر store setter داره
+
+        try {
+          const connected = await pairing.startPairing(IP_ADDRESS, PORT);
+          if (connected && isMounted) {
+            pairing.sendScanWifi();
+          }
+        } catch (err: any) {
+          const msg = err?.message || t('Failed to connect to device');
+          if (isMounted) {
+            setError(msg);
+            setModalErrorText(msg);
+            setShowErrorModal(true);
+          }
+        } finally {
+          if (isMounted) setIsLoading(false);
         }
-      } catch (err: any) {
-        const msg = err?.message || t('Failed to connect to device');
-        if (isMounted) {
-          setError(msg);
-          setModalErrorText(msg);
-          setShowErrorModal(true);
-        }
-      } finally {
-        if (isMounted) setIsLoading(false);
-      }
-    };
+      };
 
-    initialize();
+      initialize();
 
-    return () => {
-      isMounted = false;
-      pairing.disconnect();
-    };
-    // }, []);
-  }, [pairing, t, setError]);
+      return () => {
+        isMounted = false;
+        pairing.disconnect();
+      };
+    }, [pairing, t]),
+  );
 
   useEffect(() => {
     if (storeError) {

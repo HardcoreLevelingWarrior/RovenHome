@@ -14,6 +14,8 @@ export const lightTheme = {
     card: '#ffffff',
     border: palette.divider,
     textOnPrimary: '#ffffff',
+    success: palette.success.main, // ← سبز موفق
+    warning: palette.warning.main, // ← اگر بعداً نیاز داشتی
   },
   spacing,
   typography,

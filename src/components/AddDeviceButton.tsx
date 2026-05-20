@@ -49,7 +49,6 @@ function AddDeviceButton({ avatar, text }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
     marginHorizontal: 'auto',
     width: width * 0.4,
     height: width * 0.5,
@@ -60,8 +59,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     elevation: 5,
     zIndex: 5,
-    left: width * 0.3,
+    // left: width * 0.3,
     bottom: 120,
+    marginTop: 40,
   },
   imageBox: {
     width: width * 0.3,

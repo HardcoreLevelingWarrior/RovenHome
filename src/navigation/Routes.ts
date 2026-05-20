@@ -7,4 +7,5 @@ export const Routes = {
   PickDeviceScreen: 'PickDeviceScreen',
   SetupGuideScreen: 'SetupGuideScreen',
   PairingScreen: 'PairingScreen',
+  OvenControlScreen: 'OvenControlScreen',
 } as const;

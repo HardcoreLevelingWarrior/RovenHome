@@ -14,6 +14,11 @@ type Theme = {
     textSecondary: string;
     divider: string;
     error: string;
+    card: string;
+    border: string;
+    textOnPrimary: string;
+    success: string;
+    warning: string;
   };
   spacing: typeof lightTheme.spacing; // یا مستقیم { xs: number; ... }
   typography: typeof lightTheme.typography;

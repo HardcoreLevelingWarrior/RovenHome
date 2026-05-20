@@ -1,5 +1,6 @@
 import { Routes } from './Routes';
 import { Brand, Devices } from '../constant/devices';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 export type RootStackParamList = {
   [Routes.HomeScreen]: undefined;
@@ -15,4 +16,9 @@ export type RootStackParamList = {
   [Routes.PairingScreen]: {
     device: Devices;
   };
+  [Routes.OvenControlScreen]: {
+    deviceId: string;
+  };
 };
+
+export type AppNavigationProp = NativeStackNavigationProp<RootStackParamList>;
