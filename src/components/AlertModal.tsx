@@ -8,7 +8,7 @@ import {
   StyleSheet,
   Dimensions,
 } from 'react-native';
-import { useTheme } from '../../../context/themeContext'; // مسیر theme خودت رو درست کن
+import { useTheme } from '../context/themeContext'; // مسیر theme خودت رو درست کن
 
 const { width } = Dimensions.get('window');
 

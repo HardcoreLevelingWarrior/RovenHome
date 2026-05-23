@@ -1,7 +1,7 @@
 import { ImageSourcePropType } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-const { t } = useTranslation();
+// const { t } = useTranslation();
 
 export type Brand = {
   id: string;
@@ -13,8 +13,9 @@ export type Devices = {
   id: string;
   name: string;
   model: string;
+  brandName?: string;
   image?: ImageSourcePropType;
-  setupGuide: string[];
+  setupGuide: (string | undefined)[];
   connectionType: 'wifi';
 };
 
@@ -27,143 +28,51 @@ export const brands: Brand[] = [
       {
         id: '101',
         name: 'oven',
-        model: 'test',
+        model: 'oven101',
+        image: require('../assets/images/devices/oven.png'),
         setupGuide: [
-          t(`Please turn on the oven.`),
-          t(`Reset your oven so, the device enters it's access point mode.`),
-          t(
-            `Now please try to conenct your mobile phone to the device access point `,
-          ),
-          t(`Now you have 3 minutes to connect to the device`),
+          'please_turn_on_your_device',
+          "reset_your_device_so_the_your_device_enters_it's_access_point_mode",
+
+          'now_please_try_to_connect_your_mobile_phone_to_the_device_access_point',
+          "once_you_are_connected_to_the_device's_Wi-Fi,_click_the_Connect_to_Device_button",
+          ,
+          'after_hitting_the_button_you_have_3_minutes_to_connect_to_the_device',
         ],
         connectionType: 'wifi',
       },
-      //   {
-      //     id: '102',
-      //     name: 'oven',
-      //     model: 'toster',
-      //     setupGuide: [
-      //       t(`Please turn on the oven.`),
-      //       t(`Reset your oven so, the device enters it's access point mode.`),
-      //       t(
-      //         `Now please try to conenct your mobile phone to the device access point `,
-      //       ),
-      //       t(`Now you have 3 minutes to connect to the device`),
-      //     ],
-      //     connectionType: 'wifi',
-      //   },
-      //   {
-      //     id: '103',
-      //     name: 'oven',
-      //     model: 'toster',
-      //     setupGuide: [
-      //       t(`Please turn on the oven.`),
-      //       t(`Reset your oven so, the device enters it's access point mode.`),
-      //       t(
-      //         `Now please try to conenct your mobile phone to the device access point `,
-      //       ),
-      //       t(`Now you have 3 minutes to connect to the device`),
-      //     ],
-      //     connectionType: 'wifi',
-      //   },
-      //   {
-      //     id: '104',
-      //     name: 'oven',
-      //     model: 'toster',
-      //     setupGuide: [],
-      //     connectionType: 'wifi',
-      //   },
-      //   {
-      //     id: '105',
-      //     name: 'oven',
-      //     model: 'toster',
-      //     setupGuide: [],
-      //     connectionType: 'wifi',
-      //   },
-      //   {
-      //     id: '106',
-      //     name: 'oven',
-      //     model: 'toster',
-      //     setupGuide: [],
-      //     connectionType: 'wifi',
-      //   },
-      //   {
-      //     id: '107',
-      //     name: 'oven',
-      //     model: 'toster',
-      //     setupGuide: [],
-      //     connectionType: 'wifi',
-      //   },
-      //   {
-      //     id: '108',
-      //     name: 'oven',
-      //     model: 'toster',
-      //     setupGuide: [],
-      //     connectionType: 'wifi',
-      //   },
+      {
+        id: '102',
+        name: 'hood',
+        model: 'hood102',
+        image: require('../assets/images/devices/hood.png'),
+        setupGuide: [
+          'please_turn_on_your_device',
+          "reset_your_device_so_the_your_device_enters_it's_access_point_mode",
+
+          'now_please_try_to_connect_your_mobile_phone_to_the_device_access_point',
+          "once_you_are_connected_to_the_device's_Wi-Fi,_click_the_Connect_to_Device_button",
+          ,
+          'after_hitting_the_button_you_have_3_minutes_to_connect_to_the_device',
+        ],
+        connectionType: 'wifi',
+      },
+      {
+        id: '103',
+        name: 'stove',
+        model: 'stove103',
+        image: require('../assets/images/devices/stove.png'),
+        setupGuide: [
+          'please_turn_on_your_device',
+          "reset_your_device_so_the_your_device_enters_it's_access_point_mode",
+
+          'now_please_try_to_connect_your_mobile_phone_to_the_device_access_point',
+          "once_you_are_connected_to_the_device's_Wi-Fi,_click_the_Connect_to_Device_button",
+          ,
+          'after_hitting_the_button_you_have_3_minutes_to_connect_to_the_device',
+        ],
+        connectionType: 'wifi',
+      },
     ],
   },
-  // {
-  //   id: 'rahavard1',
-  //   name: 'rahavard',
-  //   logo: require('../assets/images/brands/rahavard.png'),
-  //   devices: [
-  //     {
-  //       id: '101',
-  //       name: 'oven',
-  //       model: 'toster',
-  //       setupGuide: [],
-  //       connectionType: 'wifi',
-  //     },
-  //     {
-  //       id: '102',
-  //       name: 'oven',
-  //       model: 'toster',
-  //       setupGuide: [],
-  //       connectionType: 'wifi',
-  //     },
-  //     {
-  //       id: '103',
-  //       name: 'oven',
-  //       model: 'toster',
-  //       setupGuide: [],
-  //       connectionType: 'wifi',
-  //     },
-  //     {
-  //       id: '104',
-  //       name: 'oven',
-  //       model: 'toster',
-  //       setupGuide: [],
-  //       connectionType: 'wifi',
-  //     },
-  //     {
-  //       id: '105',
-  //       name: 'oven',
-  //       model: 'toster',
-  //       setupGuide: [],
-  //       connectionType: 'wifi',
-  //     },
-  //     {
-  //       id: '106',
-  //       name: 'oven',
-  //       model: 'toster',
-  //       setupGuide: [],
-  //       connectionType: 'wifi',
-  //     },
-  //     {
-  //       id: '107',
-  //       name: 'oven',
-  //       model: 'toster',
-  //       setupGuide: [],
-  //       connectionType: 'wifi',
-  //     },
-  //     {
-  //       id: '108',
-  //       name: 'oven',
-  //       model: 'toster',
-  //       setupGuide: [],
-  //       connectionType: 'wifi',
-  //     },
-  //   ],
-  // },
 ];

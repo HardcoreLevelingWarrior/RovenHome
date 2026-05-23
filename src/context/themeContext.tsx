@@ -34,8 +34,8 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  // const systemScheme = useColorScheme();
-  const systemScheme = 'light';
+  const systemScheme = useColorScheme();
+  // const systemScheme = 'light';
 
   const effectiveScheme = systemScheme === 'light' ? 'light' : 'dark';
 
@@ -65,7 +65,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 export const useTheme = () => {
   const context = useContext(ThemeContext);
   if (!context) {
-    throw new Error('useTheme must be used within ThemeProvider');
+    // throw new Error('useTheme must be used within ThemeProvider');
+    return {
+      theme: lightTheme,
+      isDark: false,
+      toggleTheme: () => {},
+    };
   }
   return context;
 };
