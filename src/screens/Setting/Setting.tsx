@@ -29,7 +29,7 @@ export default function Setting() {
             fontSize: typography.fontSize.xxxl,
           },
         ]}
-        children={t('Setting')}
+        children={t('settings.setting')}
         weight="bold"
       ></CustomText>
 

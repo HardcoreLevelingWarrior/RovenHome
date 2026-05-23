@@ -12,14 +12,12 @@ import { useTheme } from '../../../context/themeContext';
 import { useTranslation } from 'react-i18next';
 import CustomText from '../../../components/customText';
 
-
 export default function ThemeToggleButton() {
   const { theme, isDark, toggleTheme } = useTheme();
   const { colors, spacing } = theme;
 
   const { t } = useTranslation();
   const [modalVisible, setModalVisible] = useState(false);
-  
 
   return (
     <>
@@ -29,12 +27,12 @@ export default function ThemeToggleButton() {
       >
         <CustomText
           style={[styles.label, { color: colors.textPrimary }]}
-          children={t('Theme')}
+          children={t('settings.theme')}
         ></CustomText>
 
         <CustomText
           style={[styles.value, { color: colors.textSecondary }]}
-          children={isDark ? t('Dark') : t('Light')}
+          children={isDark ? t('settings.dark') : t('settings.light')}
         ></CustomText>
       </TouchableOpacity>
 
@@ -50,13 +48,13 @@ export default function ThemeToggleButton() {
           >
             <CustomText
               style={[styles.modalTitle, { color: colors.textPrimary }]}
-              children={t('Choose your theme')}
+              children={t('settings.choose_your_theme')}
             ></CustomText>
 
             <View style={styles.switchContainer}>
               <CustomText
                 style={{ color: colors.textPrimary, fontSize: 16 }}
-                children={t('Dark mode')}
+                children={t('settings.dark_mode')}
               ></CustomText>
 
               <Switch
@@ -77,7 +75,7 @@ export default function ThemeToggleButton() {
             >
               <CustomText
                 style={{ color: colors.textPrimary, fontWeight: '600' }}
-                children={t('Close')}
+                children={t('close')}
               ></CustomText>
             </TouchableOpacity>
           </View>

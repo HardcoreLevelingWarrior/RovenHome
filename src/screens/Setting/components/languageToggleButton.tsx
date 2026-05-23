@@ -35,11 +35,11 @@ export default function LanguageToggleButton() {
       >
         <CustomText
           style={[styles.label, { color: colors.textPrimary }]}
-          children={t('language')}
+          children={t('settings.language')}
         ></CustomText>
         <CustomText
           style={[styles.value, { color: colors.textSecondary }]}
-          children={t('current_language')}
+          children={t('settings.current_language')}
         ></CustomText>
       </TouchableOpacity>
 
@@ -55,7 +55,7 @@ export default function LanguageToggleButton() {
           >
             <CustomText
               style={[styles.modalTitle, { color: colors.textPrimary }]}
-              children={t('Choose your language')}
+              children={t('settings.choose_your_language')}
             ></CustomText>
 
             {LANGUAGES.map(lang => (
@@ -91,7 +91,7 @@ export default function LanguageToggleButton() {
             >
               <CustomText
                 style={{ color: colors.textPrimary, fontWeight: '600' }}
-                children={t('Close')}
+                children={t('close')}
               ></CustomText>
             </TouchableOpacity>
           </View>

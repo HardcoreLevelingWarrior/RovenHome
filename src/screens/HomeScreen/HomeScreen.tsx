@@ -154,19 +154,22 @@ function HomeScreen() {
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
     >
-      <Header headerText="Home" brandName={t('Roven')}></Header>
+      <Header headerText="Home" brandName={t('home_screen.roven')}></Header>
       <CustomText
         style={[
           {
-            color: 'black',
+            color: colors.textPrimary,
             fontSize: typography.fontSize.xxxl,
-            marginHorizontal: 10,
+            // marginHorizontal: 10,
+            marginVertical: 20,
+            width: '100%',
+            display: 'flex',
           },
         ]}
-        children={t('Devices')}
+        children={t('home_screen.devices')}
       ></CustomText>
 
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={[
           styles.checkAllButton,
           {
@@ -186,7 +189,7 @@ function HomeScreen() {
         >
           {t('بررسی وضعیت همه دستگاه‌ها')}
         </Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <View style={styles.flatListContent}>
         {devices.length === 0 ? (
           <Text
@@ -196,7 +199,7 @@ function HomeScreen() {
               marginTop: 40,
             }}
           >
-            {t('هیچ دستگاهی اضافه نشده است')}
+            {t('home_screen.no_device_has_been_added')}
           </Text>
         ) : (
           <FlatList
@@ -213,7 +216,7 @@ function HomeScreen() {
       </View>
       <AddDeviceButton
         avatar={require('../../assets/images/wifiConfig.png')}
-        text={t('Add Device')}
+        text={t('home_screen.add_device')}
       ></AddDeviceButton>
     </SafeAreaView>
   );
@@ -225,7 +228,7 @@ const styles = StyleSheet.create({
     padding: 15,
   },
   flatListContent: {
-    height: width * 0.85,
+    height: width * 0.7,
     // paddingHorizontal: 16,
     // paddingVertical: 8,
   },
