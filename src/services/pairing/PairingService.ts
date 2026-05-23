@@ -73,13 +73,119 @@ export default class PairingService {
     return !!this.client && !this.client.destroyed;
   }
 
-  public async startPairing(ip: string, port: number = 5000): Promise<boolean> {
-    if (this.currentStatus !== 'idle') {
-      console.warn('Pairing in progress');
-      return false;
-    }
+  // public async startPairing(ip: string, port: number = 5000): Promise<boolean> {
+  //   if (this.currentStatus !== 'idle') {
+  //     console.warn('Pairing in progress');
+  //     return false;
+  //   }
 
-    if (this.client) this.disconnect();
+  //   if (this.client) this.disconnect();
+
+  //   if (!ip || !/^(?:\d{1,3}\.){3}\d{1,3}$/.test(ip)) {
+  //     throw new Error('آدرس IP نامعتبر');
+  //   }
+
+  //   this.setStatus('connecting');
+  //   this.tempDeviceInfo = { ip, port };
+
+  //   return new Promise<boolean>((resolve, reject) => {
+  //     const timeout = setTimeout(() => {
+  //       reject(new Error('اتصال timeout (۳۰ ثانیه)'));
+  //       this.disconnect();
+  //     }, 30000);
+
+  //     this.client = TcpSocket.createConnection(
+  //       { host: ip, port, interface: 'wifi' },
+  //       () => {
+  //         clearTimeout(timeout);
+  //         this.setStatus('connected');
+  //         this.startHeartbeat();
+  //         resolve(true);
+  //       },
+  //     );
+
+  //     this.client.on('data', (data: Buffer) => this.handleIncomingData(data));
+  //     this.client.on('error', (err: Error) => {
+  //       clearTimeout(timeout);
+  //       this.handleError(err);
+  //       reject(err);
+  //     });
+  //     this.client.on('close', () => {
+  //       clearTimeout(timeout);
+  //       this.handleClose();
+  //       if (this.status === 'connecting') {
+  //         reject(new Error('اتصال بسته شد'));
+  //       }
+  //     });
+  //   });
+  // }
+  // public async startPairing(ip: string, port: number = 5000): Promise<boolean> {
+  //   if (this.currentStatus !== 'idle') {
+  //     console.warn('Pairing already in progress');
+  //     return false;
+  //   }
+
+  //   if (this.client) this.disconnect();
+
+  //   if (!ip || !/^(?:\d{1,3}\.){3}\d{1,3}$/.test(ip)) {
+  //     throw new Error('آدرس IP نامعتبر');
+  //   }
+
+  //   this.setStatus('connecting');
+  //   this.tempDeviceInfo = { ip, port };
+
+  //   return new Promise<boolean>((resolve, reject) => {
+  //     let isSettled = false; // ← مهم: جلوگیری از resolve/reject چندباره
+
+  //     const timeout = setTimeout(() => {
+  //       if (isSettled) return;
+  //       isSettled = true;
+  //       reject(new Error('اتصال timeout (۳۰ ثانیه)'));
+  //       this.disconnect();
+  //     }, 30000);
+
+  //     this.client = TcpSocket.createConnection(
+  //       { host: ip, port, interface: 'wifi' },
+  //       () => {
+  //         if (isSettled) return;
+  //         clearTimeout(timeout);
+  //         isSettled = true;
+  //         this.setStatus('connected');
+  //         this.startHeartbeat();
+  //         resolve(true);
+  //       },
+  //     );
+
+  //     this.client.on('data', (data: Buffer) => this.handleIncomingData(data));
+
+  //     this.client.on('error', (err: Error) => {
+  //       if (isSettled) return;
+  //       isSettled = true;
+  //       clearTimeout(timeout);
+  //       this.handleError(err);
+  //       reject(err);
+  //     });
+
+  //     this.client.on('close', () => {
+  //       if (isSettled) return;
+  //       isSettled = true;
+  //       clearTimeout(timeout);
+  //       this.handleClose();
+  //       if (this.status === 'connecting') {
+  //         reject(new Error('اتصال بسته شد قبل از تکمیل'));
+  //       }
+  //     });
+  //   });
+  // }
+
+  public async startPairing(ip: string, port: number = 5000): Promise<boolean> {
+    console.log(`[startPairing] Attempting to connect to ${ip}:${port}`);
+
+    this.disconnect(); // کامل پاکسازی
+
+    if (this.currentStatus !== 'idle') {
+      this.setStatus('idle');
+    }
 
     if (!ip || !/^(?:\d{1,3}\.){3}\d{1,3}$/.test(ip)) {
       throw new Error('آدرس IP نامعتبر');
@@ -89,34 +195,62 @@ export default class PairingService {
     this.tempDeviceInfo = { ip, port };
 
     return new Promise<boolean>((resolve, reject) => {
-      const timeout = setTimeout(() => {
+      let isSettled = false;
+      // let connectionTimeout: NodeJS.Timeout;
+      let connectionTimeout: number;
+
+      connectionTimeout = setTimeout(() => {
+        if (isSettled) return;
+        isSettled = true;
+        console.log('[startPairing] Timeout');
         reject(new Error('اتصال timeout (۳۰ ثانیه)'));
         this.disconnect();
       }, 30000);
 
-      this.client = TcpSocket.createConnection(
-        { host: ip, port, interface: 'wifi' },
-        () => {
-          clearTimeout(timeout);
-          this.setStatus('connected');
-          this.startHeartbeat();
-          resolve(true);
-        },
-      );
+      try {
+        this.client = TcpSocket.createConnection(
+          { host: ip, port, interface: 'wifi' },
+          () => {
+            if (isSettled) return;
+            clearTimeout(connectionTimeout);
+            isSettled = true;
+            console.log('[startPairing] Connected successfully');
+            this.setStatus('connected');
+            this.startHeartbeat();
+            resolve(true);
+          },
+        );
 
-      this.client.on('data', (data: Buffer) => this.handleIncomingData(data));
-      this.client.on('error', (err: Error) => {
-        clearTimeout(timeout);
-        this.handleError(err);
-        reject(err);
-      });
-      this.client.on('close', () => {
-        clearTimeout(timeout);
-        this.handleClose();
-        if (this.status === 'connecting') {
-          reject(new Error('اتصال بسته شد'));
+        this.client.on('data', (data: Buffer) => this.handleIncomingData(data));
+
+        this.client.on('error', (err: Error) => {
+          if (isSettled) return;
+          isSettled = true;
+          clearTimeout(connectionTimeout);
+          console.error('[startPairing] Socket Error:', err.message);
+          this.handleError(err);
+          reject(err);
+        });
+
+        this.client.on('close', () => {
+          if (isSettled) return;
+          isSettled = true;
+          clearTimeout(connectionTimeout);
+          console.log('[startPairing] Connection closed unexpectedly');
+          this.handleClose();
+          if (this.status === 'connecting') {
+            reject(new Error('اتصال قبل از تکمیل بسته شد'));
+          }
+        });
+      } catch (err: any) {
+        if (!isSettled) {
+          isSettled = true;
+          clearTimeout(connectionTimeout);
+          console.error('[startPairing] CreateConnection failed:', err);
+          this.handleError(err);
+          reject(err);
         }
-      });
+      }
     });
   }
 
@@ -286,13 +420,31 @@ export default class PairingService {
     this.client = null;
   }
 
+  // public disconnect() {
+  //   this.stopHeartbeat();
+  //   if (this.client && !this.client.destroyed) {
+  //     this.client.destroy();
+  //   }
+  //   this.client = null;
+  //   this.setStatus('idle');
+  //   this.tempDeviceInfo = {};
+  // }
   public disconnect() {
     this.stopHeartbeat();
-    if (this.client && !this.client.destroyed) {
-      this.client.destroy();
+
+    if (this.client) {
+      try {
+        if (!this.client.destroyed) {
+          this.client.destroy();
+        }
+      } catch (e) {
+        console.log('Error destroying client:', e);
+      }
+      this.client = null;
     }
-    this.client = null;
+
     this.setStatus('idle');
     this.tempDeviceInfo = {};
+    console.log('[PairingService] Fully disconnected and reset');
   }
 }
