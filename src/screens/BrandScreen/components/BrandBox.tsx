@@ -1,4 +1,4 @@
-import react from 'react';
+import React from 'react';
 import {
   TouchableOpacity,
   Text,
@@ -10,9 +10,6 @@ import {
 } from 'react-native';
 
 import { useTheme } from '../../../context/themeContext';
-import CustomText from '../../../components/customText';
-import { useTranslation } from 'react-i18next';
-import Icon from 'react-native-vector-icons/Ionicons';
 
 const { width } = Dimensions.get('window');
 
@@ -23,8 +20,7 @@ interface Props {
 
 function BrandBox({ avatar, onClick }: Props) {
   const { theme } = useTheme();
-  const { colors, typography, shadows } = theme;
-  const { t } = useTranslation();
+  const { colors, shadows } = theme;
 
   return (
     <TouchableOpacity

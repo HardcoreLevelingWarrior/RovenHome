@@ -14,10 +14,6 @@ import { Routes } from '../../../navigation/Routes';
 import { useTheme } from '../../../context/themeContext';
 import CustomText from '../../../components/customText';
 import { useTranslation } from 'react-i18next';
-import Icon from 'react-native-vector-icons/Ionicons';
-import AddDeviceScreen from '../AddDeviceScreen';
-
-const { width } = Dimensions.get('window');
 
 interface Props {
   header: string;
@@ -28,7 +24,6 @@ function ConfigBox({ header, description }: Props) {
   const navigation = useNavigation<any>();
   const { theme } = useTheme();
   const { colors, typography, shadows } = theme;
-  const { t } = useTranslation();
 
   return (
     <TouchableOpacity
@@ -38,17 +33,18 @@ function ConfigBox({ header, description }: Props) {
       ]}
       onPress={() => navigation.navigate(Routes.BrandScreen)}
     >
-      <View>
-        <CustomText
-          style={[
-            styles.textBox,
-            { color: colors.textPrimary, fontSize: typography.fontSize.xl },
-          ]}
-          children={header}
-          weight="bold"
-        ></CustomText>
-        <Icon name="navigate-next"></Icon>
-      </View>
+      <CustomText
+        style={[
+          styles.textBox,
+          {
+            color: colors.textPrimary,
+            fontSize: typography.fontSize.xl,
+            width: '100%',
+          },
+        ]}
+        children={header}
+        weight="bold"
+      ></CustomText>
 
       <CustomText
         style={[

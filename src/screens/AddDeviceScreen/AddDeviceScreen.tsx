@@ -11,13 +11,15 @@ function AddDeviceScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <CustomText
-        children={t('Add device based on :')}
+        children={t('add_device_screen.add_device_based_on')}
         style={[styles.screenHeader, { fontSize: typography.fontSize.xxl }]}
         // weight="bold"
       ></CustomText>
       <ConfigBox
-        header={t('Select based on device brand')}
-        description={t('adding devices based on the device brand and model ')}
+        header={t('add_device_screen.select_based_on_device_brand')}
+        description={t(
+          'add_device_screen.adding_devices_based_on_the_device_brand_and_model',
+        )}
       ></ConfigBox>
     </View>
   );
