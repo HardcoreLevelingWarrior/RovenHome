@@ -34,12 +34,17 @@ export default function PickDeviceScreen() {
   // const { brand } = route.params;   // حالا TypeScript مطمئن است که brand وجود دارد
 
   function onClick(device: Devices) {
+    device.brandName = brand.name;
     navigation.navigate(Routes.SetupGuideScreen, {
       device: device,
     });
   }
   if (!brand) {
-    return null;
+    return (
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <CustomText>No brand selected</CustomText>
+      </View>
+    );
   } else {
     const selectedBrand = brand;
     return (
@@ -48,10 +53,10 @@ export default function PickDeviceScreen() {
           style={[styles.screenHeader, { fontSize: typography.fontSize.xxl }]}
           weight="bold"
         >
-          {t('Pick your device from')} {brand.name}
+          {t('pick_device_screen.pick_your_device')}
         </CustomText>
 
-        <FlatList
+        {/* <FlatList
           data={selectedBrand.devices}
           numColumns={2}
           horizontal={false}
@@ -66,7 +71,25 @@ export default function PickDeviceScreen() {
           )}
           // contentContainerStyle={{ margin: 5 }}
           showsVerticalScrollIndicator={false}
-        ></FlatList>
+        ></FlatList> */}
+        <FlatList
+          data={brand.devices}
+          numColumns={2} // ← مهم
+          keyExtractor={(item, index) =>
+            item?.id?.toString() || index.toString()
+          }
+          columnWrapperStyle={styles.columnWrapper}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item }) => (
+            <DeviceBox
+              onPress={() => onClick(item)}
+              avatar={item.image}
+              itemName={t(`device.${[item.name]}`)}
+              itemModel={`${t('pick_device_screen.model')} : ${item.model}`}
+            />
+          )}
+        />
       </View>
     );
   }
@@ -85,23 +108,22 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginVertical: 35,
   },
+  // columnWrapper: {
+  //   justifyContent: 'space-between',
+  //   paddingHorizontal: 8,
+  //   marginBottom: 16,
+  // },
+  // listContent: {
+  //   paddingHorizontal: 0,
+  //   paddingBottom: 40,
+  // },
   columnWrapper: {
     justifyContent: 'space-between',
     paddingHorizontal: 8,
-    marginBottom: 16,
+    // marginBottom: 2,
   },
   listContent: {
-    paddingHorizontal: 0,
     paddingBottom: 40,
+    paddingHorizontal: 8,
   },
 });
-
-// import { Text, View, Image } from 'react-native';
-
-// function PickDeviceScreen() {
-//   return (
-//     <View>
-//       <Text>PickDeviceScreen</Text>
-//     </View>
-//   );
-// }
