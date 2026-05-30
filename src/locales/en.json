@@ -120,5 +120,31 @@
     "the-device-is-off": "The device is off",
     "on": "on",
     "off": "off"
+  },
+  "oven-mode": {
+    "cooking-mode": "Cooking mode",
+
+    "off": "Off",
+    "bake": "Bake",
+    "grill": "Grill",
+    "convection": "Convection",
+    "roast": "Roast",
+    "pizza": "Pizza",
+    "pasta": "Pasta",
+    "cake": "Cake",
+    "pasty": "Pasty",
+    "frozen": "Frozen Food",
+    "fish": "Fish",
+    "redmeat": "Red Meat",
+    "chicken": "Chicken",
+    "redmeatchop": "Red Meat Chop",
+    "chickenchop": "Chicken Chop",
+    "fishchop": "Fish Chopped"
+  },
+  "oven-temperature": {
+    "target-temperature": "Target Temperature",
+    "title": "Target Temperature",
+    "current": "Current:",
+    "hint": "Adjust between {{min}}°C and {{max}}°C ({{step}}°C steps)"
   }
 }

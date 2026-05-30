@@ -22,16 +22,26 @@ import CustomAlert from '../../components/CustomAlert';
 import OvenHeader from './components/OvenHeader';
 import OvenStatusCard from './components/OvenStatusCard';
 import OvenPowerControl from './components/OvenPowerControl';
+import OvenModeSelector from './components/OvenModeSelector';
+import OvenTemperatureControl from './components/OvenTemperatureControl';
 
-type OvenMode = 'off' | 'bake' | 'grill' | 'convection' | 'roast';
-
-const MODE_ICONS = {
-  bake: '🔥',
-  grill: '🫕',
-  convection: '♨️',
-  roast: '🍖',
-  off: '⏻',
-};
+export type OvenMode =
+  | 'off'
+  | 'bake'
+  | 'grill'
+  | 'convection'
+  | 'roast'
+  | 'pizza'
+  | 'pasta'
+  | 'cake'
+  | 'pasty'
+  | 'frozen'
+  | 'fish'
+  | 'redmeat'
+  | 'chicken'
+  | 'redmeatchop'
+  | 'chickenchop'
+  | 'fishchop';
 
 export default function OvenControlScreen() {
   const route = useRoute();
@@ -142,18 +152,18 @@ export default function OvenControlScreen() {
           sendCommand={sendCommand}
         />
 
-        {/* <OvenModeSelector mode={mode} setMode={setMode} /> */}
+        <OvenModeSelector mode={mode} setMode={setMode} />
 
-        {/* <OvenTemperatureControl temp={targetTemp} setTemp={setTargetTemp} />
+        <OvenTemperatureControl temp={targetTemp} setTemp={setTargetTemp} />
 
-        <OvenTimerControl time={timerMin} setTime={setTimerMin} />
+        {/* <OvenTimerControl time={timerMin} setTime={setTimerMin} /> */}
 
-        <OvenStartTimeControl
+        {/* <OvenStartTimeControl
           startTime={startTime}
           setStartTime={setStartTime}
-        />
+        /> */}
 
-        <OvenActionButtons
+        {/* <OvenActionButtons
           onApply={sendCommand}
           onStop={() => sendCommand('STOP')}
         /> */}

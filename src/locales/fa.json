@@ -119,9 +119,34 @@
     "current-temprature": "دمای فعلی",
     "remaining-time": "زمان باقی مانده",
     "current-state": "حالت فعلی",
-    "the-device-is-on": "The device is on",
-    "the-device-is-off": "The device is off",
+    "the-device-is-on": "دستگاه روشن است",
+    "the-device-is-off": "دستگاه خاموش است",
     "on": "روشن",
     "off": "خاموش"
+  },
+  "oven-mode": {
+    "cooking-mode": "حالت پخت",
+    "off": "خاموش",
+    "bake": "نان",
+    "grill": "گریل",
+    "convection": "همرفت",
+    "roast": "کباب",
+    "pizza": "پیتزا",
+    "pasta": "پاستا",
+    "cake": "کیک",
+    "pasty": "پای",
+    "frozen": "غذای منجمد",
+    "fish": "ماهی",
+    "redmeat": "گوشت قرمز",
+    "chicken": "مرغ",
+    "redmeatchop": "گوشت قرمز تکه شده",
+    "chickenchop": "مرغ تکه شده",
+    "fishchop": "ماهی تکه شده"
+  },
+  "oven-temperature": {
+    "target-temperature": "دمای مورد نظر",
+    "title": "دمای مورد نظر",
+    "current": "دمای فعلی:",
+    "hint": "تنظیم بین {{min}} تا {{max}} درجه سانتی‌گراد (مرحله {{step}} درجه)"
   }
 }
