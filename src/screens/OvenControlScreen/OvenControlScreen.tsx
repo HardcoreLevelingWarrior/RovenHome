@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import {
   View,
-  Text,
   TouchableOpacity,
   StyleSheet,
   ScrollView,
   Alert,
-  Platform,
+  AlertType,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute } from '@react-navigation/native';
@@ -15,7 +14,9 @@ import { useTheme } from '../../context/themeContext';
 import { useApplicationStore } from '../../stores/ApplicationStore';
 import DeviceConnectionService from '../../services/connection/DeviceConnectionService';
 import CustomText from '../../components/customText';
-import AlertModal from '../../components/AlertModal'
+import { DeviceInfo } from '../../stores/types';
+
+import CustomAlert from '../../components/CustomAlert';
 
 type OvenMode = 'off' | 'bake' | 'grill' | 'convection' | 'roast';
 
@@ -27,401 +28,200 @@ const MODE_ICONS = {
   off: '⏻',
 };
 
-interface RouteParams {
-  deviceId: string;
-}
-
 export default function OvenControlScreen() {
   const route = useRoute();
-  const { deviceId } = route.params as RouteParams;
-
+  const { device } = route.params as { device: DeviceInfo };
   const { theme } = useTheme();
   const { colors } = theme;
 
-  const store = useApplicationStore();
-  const device = store.devices.find(d => d.id === deviceId);
-  const isConnected = store.connectedIds.includes(deviceId);
-  const lastMessage = store.lastMessages[deviceId] || '';
-
   const service = DeviceConnectionService.getInstance();
+  const { connectedIds, lastMessages } = useApplicationStore();
 
-  // حالت‌های محلی
-  const [mode, setMode] = useState<OvenMode>('off');
+  const isConnected = connectedIds.includes(device.id);
+  const lastMessage = lastMessages[device.id] || '';
+
+  //state
+  const [isOn, setIsOn] = useState(false);
+  const [lightOn, setLightOn] = useState(false);
+  const [childLock, setChildLock] = useState(false);
+  const [mode, setMode] = useState<OvenMode>('bake');
   const [targetTemp, setTargetTemp] = useState(180);
-  const [timerMin, setTimerMin] = useState(30);
+  const [timerMin, setTimerMin] = useState(45);
+  const [startTime, setStartTime] = useState('00:00');
 
-  // مقادیر واقعی دریافتی
-  const [currentTemp, setCurrentTemp] = useState<number | null>(null);
-  const [remainingSec, setRemainingSec] = useState<number | null>(null);
-  const [currentMode, setCurrentMode] = useState<OvenMode>('off');
+  const [alertConfig, setAlertConfig] = useState({
+    visible: false,
+    title: '',
+    message: '',
+    type: 'info' as any,
+    confirmText: 'ok',
+    cancelText: 'cancel',
+    singleButton: true,
+    onConfirm: () => {},
+    onCancel: () => {},
+  });
 
-  // اتصال خودکار
+  const showAlert = (config: Partial<typeof alertConfig>) => {
+    setAlertConfig(prev => ({ ...prev, visible: true, ...config }));
+  };
+
+  const hideAlert = () => {
+    setAlertConfig(prev => ({ ...prev, visible: false }));
+  };
+
+  useEffect(() => {
+    if (isConnected) {
+      service.send(device.id, 'GET_STATUS');
+    }
+  }, [isConnected, device.id]);
+
   useEffect(() => {
     if (!isConnected && device) {
       service.connect(device).catch(() => {
-        Alert.alert('اتصال ناموفق', 'نمی‌توان به فر متصل شد');
-        
-       
+        // Alert.alert('خطا', 'اتصال به فر برقرار نشد');
+        showAlert({
+          title: 'error',
+          message: 'connection to the oven failed.',
+          type: 'error',
+          singleButton: true,
+        });
+        return false;
       });
     }
-  }, [deviceId, isConnected, device, service]);
+  }, [device.id, isConnected]);
 
-  // Parse پیام دریافتی
-  useEffect(() => {
-    if (!lastMessage) return;
-
-    console.log('[Oven RX]:', lastMessage);
-
-    try {
-      const parts = lastMessage.split('|');
-      parts.forEach(p => {
-        const [key, val] = p.split(':').map(s => s.trim());
-        if (key === 'TEMP') setCurrentTemp(Number(val));
-        if (key === 'TIMER') setRemainingSec(Number(val));
-        if (key === 'MODE') {
-          const m = val.toLowerCase() as OvenMode;
-          if (['off', 'bake', 'grill', 'convection', 'roast'].includes(m)) {
-            setCurrentMode(m);
-            setMode(m);
-          }
-        }
-      });
-    } catch (e) {
-      console.warn('Parse error:', e);
-    }
-  }, [lastMessage]);
-
-  const send = (cmd: string) => {
+  const sendCommand = (command: string) => {
     if (!isConnected) {
-      Alert.alert('خطا', 'فر متصل نیست');
+      showAlert({
+        title: 'error',
+        message: 'device is not connected!',
+        type: 'error',
+        singleButton: true,
+      });
       return false;
     }
-    return service.send(deviceId, cmd);
+    return service.send(device.id, command);
   };
 
   const applyAllSettings = () => {
     if (mode === 'off') {
-      Alert.alert('انتخاب حالت', 'لطفاً یک حالت پخت انتخاب کنید');
+      showAlert({
+        title: 'error',
+        message: 'Please select the cooking mode',
+        type: 'warning',
+      });
       return;
     }
 
-    const payload = JSON.stringify({
-      mode: mode.toUpperCase(),
-      temperature: targetTemp,
-      timer_seconds: timerMin * 60,
+    const payload = `SET:MODE=${mode},TEMP=${targetTemp},TIME=${timerMin},START=${startTime}`;
+    sendCommand(payload);
+
+    showAlert({
+      title: 'success',
+      message: 'settings has been sent successfully',
+      type: 'success',
     });
-
-    send(payload);
-    Alert.alert('ارسال شد', 'تنظیمات جدید به فر ارسال گردید');
   };
-
-  const stopOven = () => {
-    Alert.alert('توقف فر', 'آیا مطمئن هستید که می‌خواهید پخت را متوقف کنید؟', [
-      { text: 'خیر', style: 'cancel' },
-      {
-        text: 'بله، توقف',
-        style: 'destructive',
-        onPress: () => send('STOP'),
-      },
-    ]);
-  };
-
-  if (!device) {
-    return (
-      <SafeAreaView
-        style={[styles.container, { backgroundColor: colors.background }]}
-      >
-        <Text
-          style={{
-            color: colors.textPrimary,
-            fontSize: 18,
-            textAlign: 'center',
-            marginTop: 100,
-          }}
-        >
-          دستگاه یافت نشد
-        </Text>
-      </SafeAreaView>
-    );
-  }
-
-  const stopCooking = () => {
-    Alert.alert('توقف فر', 'آیا مطمئن هستید که می‌خواهید پخت را متوقف کنید؟', [
-      { text: 'خیر', style: 'cancel' },
-      {
-        text: 'بله، توقف',
-        style: 'destructive',
-        onPress: () => send('STOP'),
-      },
-    ]);
-  };
-
-  const isActive = currentMode !== 'off' && remainingSec && remainingSec > 0;
-
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* هدر */}
-        <View style={styles.header}>
-          <CustomText style={styles.title}>
-            {device.name || 'فر برقی هوشمند'}
-          </CustomText>
-          <View
-            style={[
-              styles.connectionIndicator,
-              {
-                backgroundColor: isConnected ? colors.success : colors.warning,
-              },
-            ]}
-          >
-            <Text style={styles.connectionText}>
-              {isConnected ? 'متصل' : 'قطع'}
-            </Text>
-          </View>
-        </View>
+        <OvenHeader device={device} isConnected={isConnected} />
 
-        {/* کارت وضعیت realtime */}
-        <View style={[styles.statusCard, { backgroundColor: colors.card }]}>
-          <View style={styles.statusGrid}>
-            <View style={styles.statusItem}>
-              <Text style={styles.statusLabel}>دمای فعلی</Text>
-              <Text
-                style={[
-                  styles.statusBigValue,
-                  currentTemp != null &&
-                    currentTemp > 200 && { color: colors.warning },
-                ]}
-              >
-                {currentTemp !== null ? `${currentTemp}°` : '—'}
-              </Text>
-            </View>
+        <OvenStatusCard lastMessage={lastMessage} />
 
-            <View style={styles.statusItem}>
-              <Text style={styles.statusLabel}>زمان باقی‌مانده</Text>
-              <Text style={styles.statusBigValue}>
-                {remainingSec !== null
-                  ? `${Math.floor(remainingSec / 60)}:${(remainingSec % 60)
-                      .toString()
-                      .padStart(2, '0')}`
-                  : '—'}
-              </Text>
-            </View>
+        <OvenPowerControl
+          isOn={isOn}
+          setIsOn={setIsOn}
+          sendCommand={sendCommand}
+        />
 
-            <View style={styles.statusItem}>
-              <Text style={styles.statusLabel}>حالت</Text>
-              <Text style={[styles.statusBigValue, { color: colors.primary }]}>
-                {currentMode === 'off' ? 'خاموش' : currentMode}
-              </Text>
-            </View>
-          </View>
+        <OvenModeSelector mode={mode} setMode={setMode} />
 
-          {isActive && (
-            <Text style={styles.activeNotice}>
-              فر در حال پخت است • {currentTemp}°C
-            </Text>
-          )}
-        </View>
+        <OvenTemperatureControl temp={targetTemp} setTemp={setTargetTemp} />
 
-        {/* انتخاب حالت پخت */}
-        <Text style={styles.sectionTitle}>حالت پخت</Text>
-        <View style={styles.modeGrid}>
-          {(['bake', 'grill', 'convection', 'roast'] as OvenMode[]).map(m => (
-            <TouchableOpacity
-              key={m}
-              activeOpacity={0.8}
-              style={[
-                styles.modeCard,
-                mode === m && styles.modeCardSelected,
-                { borderColor: colors.border },
-              ]}
-              onPress={() => setMode(m)}
-            >
-              <Text style={styles.modeIcon}>{MODE_ICONS[m]}</Text>
-              <Text
-                style={[
-                  styles.modeLabel,
-                  mode === m && { color: colors.primary, fontWeight: '700' },
-                ]}
-              >
-                {m === 'bake'
-                  ? 'پخت معمولی'
-                  : m === 'grill'
-                  ? 'گریل'
-                  : m === 'convection'
-                  ? 'با گردش هوا'
-                  : 'کباب/روست'}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+        <OvenTimerControl time={timerMin} setTime={setTimerMin} />
 
-        {/* دمای هدف */}
-        <Text style={styles.sectionTitle}>دمای هدف</Text>
-        <View style={styles.sliderContainer}>
-          <Text style={styles.sliderValue}>{targetTemp} °C</Text>
-          <Slider
-            style={styles.slider}
-            minimumValue={50}
-            maximumValue={280}
-            step={5}
-            value={targetTemp}
-            onValueChange={setTargetTemp}
-            minimumTrackTintColor={colors.primary}
-            maximumTrackTintColor={colors.border}
-            thumbTintColor={colors.primary}
-          />
-        </View>
+        <OvenStartTimeControl
+          startTime={startTime}
+          setStartTime={setStartTime}
+        />
 
-        {/* تایمر */}
-        <Text style={styles.sectionTitle}>زمان پخت (دقیقه)</Text>
-        <View style={styles.sliderContainer}>
-          <Text style={styles.sliderValue}>{timerMin} دقیقه</Text>
-          <Slider
-            style={styles.slider}
-            minimumValue={1}
-            maximumValue={240}
-            step={1}
-            value={timerMin}
-            onValueChange={setTimerMin}
-            minimumTrackTintColor={colors.primary}
-            maximumTrackTintColor={colors.border}
-            thumbTintColor={colors.primary}
-          />
-        </View>
-
-        {/* دکمه‌های اصلی (پایین صفحه) */}
-        <View style={styles.actionBar}>
-          <TouchableOpacity
-            style={[styles.actionButton, styles.stopButton]}
-            onPress={stopCooking}
-            disabled={!isActive}
-          >
-            <Text style={styles.actionButtonText}>توقف</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.actionButton, styles.startButton]}
-            onPress={applyAllSettings}
-          >
-            <Text style={styles.actionButtonText}>
-              {isActive ? 'به‌روزرسانی تنظیمات' : 'شروع پخت'}
-            </Text>
-          </TouchableOpacity>
-        </View>
+        <OvenActionButtons
+          onApply={sendCommand}
+          onStop={() => sendCommand('STOP')}
+        />
       </ScrollView>
+
+      <CustomAlert
+        visible={alertConfig.visible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        confirmText={alertConfig.confirmText}
+        cancelText={alertConfig.cancelText}
+        singleButton={alertConfig.singleButton}
+        onConfirm={alertConfig.onConfirm}
+        onCancel={alertConfig.onCancel}
+        onClose={hideAlert}
+      />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  scrollContent: {
-    padding: 16,
-    paddingBottom: 100, // فضای کافی برای action bar پایین
-  },
+  scrollContent: { padding: 16, paddingBottom: 120 },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 24,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-  },
-  connectionIndicator: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-  },
-  connectionText: {
-    color: 'white',
-    fontWeight: '600',
-    fontSize: 14,
-  },
+  title: { fontSize: 26, fontWeight: 'bold' },
+  statusBadge: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20 },
   statusCard: {
     borderRadius: 20,
     padding: 20,
     marginBottom: 28,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    elevation: 4,
   },
-  statusGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  statusItem: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  statusLabel: {
-    fontSize: 14,
-    opacity: 0.7,
-    marginBottom: 6,
-  },
-  statusBigValue: {
-    fontSize: 26,
-    fontWeight: '700',
-  },
-  activeNotice: {
-    textAlign: 'center',
-    marginTop: 12,
-    color: '#f59e0b',
-    fontWeight: '600',
-    fontSize: 15,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 12,
-  },
+  statusGrid: { flexDirection: 'row', justifyContent: 'space-around' },
+  statusItem: { alignItems: 'center' },
+  label: { fontSize: 14, opacity: 0.7, marginBottom: 4 },
+  bigValue: { fontSize: 28, fontWeight: '700' },
+  sectionTitle: { fontSize: 18, fontWeight: '600', marginBottom: 12 },
   modeGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    marginBottom: 28,
+    marginBottom: 32,
   },
   modeCard: {
     width: '48%',
-    paddingVertical: 20,
+    paddingVertical: 24,
     borderWidth: 1.5,
-    borderRadius: 16,
+    borderRadius: 18,
     alignItems: 'center',
     marginBottom: 12,
-    backgroundColor: 'rgba(255,255,255,0.03)',
+    backgroundColor: 'rgba(255,255,255,0.05)',
   },
   modeCardSelected: {
-    borderWidth: 2.5,
-    backgroundColor: 'rgba(59,130,246,0.08)',
+    borderColor: '#3b82f6',
+    backgroundColor: 'rgba(59,130,246,0.1)',
   },
-  modeIcon: {
-    fontSize: 36,
-    marginBottom: 8,
-  },
-  modeLabel: {
-    fontSize: 15,
-    fontWeight: '500',
-  },
-  sliderContainer: {
-    marginBottom: 28,
-    paddingHorizontal: 8,
-  },
+  modeIcon: { fontSize: 42, marginBottom: 10 },
+  modeLabel: { fontSize: 15, fontWeight: '500' },
+  sliderContainer: { marginBottom: 32 },
   sliderValue: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '700',
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: 12,
   },
-  slider: {
-    width: '100%',
-    height: 40,
-  },
+  slider: { width: '100%', height: 40 },
   actionBar: {
     flexDirection: 'row',
     position: 'absolute',
@@ -435,21 +235,224 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
     borderRadius: 16,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 6,
   },
-  startButton: {
-    backgroundColor: '#10b981',
-  },
-  stopButton: {
-    backgroundColor: '#ef4444',
-  },
-  actionButtonText: {
-    color: 'white',
-    fontSize: 17,
-    fontWeight: '700',
-  },
+  startButton: { backgroundColor: '#10b981' },
+  stopButton: { backgroundColor: '#ef4444' },
+  actionButtonText: { color: 'white', fontSize: 17, fontWeight: '700' },
 });
+
+// export default function OvenControlScreen() {
+//   const route = useRoute();
+//   const { device } = route.params as { device: DeviceInfo };
+
+//   const { theme } = useTheme();
+//   const { colors } = theme;
+//   const store = useApplicationStore();
+//   // const device = store.devices.find(d => d.id === device.id);
+//   const isConnected = store.connectedIds.includes(device.id);
+//   const lastMessage = store.lastMessages[device.id] || '';
+
+//   const service = DeviceConnectionService.getInstance();
+
+//   const [mode, setMode] = useState<OvenMode>('off');
+//   const [targetTemp, setTargetTemp] = useState(180);
+//   const [timerMin, setTimerMin] = useState(30);
+
+//   const [currentTemp, setCurrentTemp] = useState<number | null>(null);
+//   const [remainingSec, setRemainingSec] = useState<number | null>(null);
+//   const [currentMode, setCurrentMode] = useState<OvenMode>('off');
+
+//   // Parse داده‌های دریافتی
+//   useEffect(() => {
+//     if (!lastMessage) return;
+//     try {
+//       const parts = lastMessage.split('|');
+//       parts.forEach(p => {
+//         const [key, val] = p.split(':').map(s => s.trim());
+//         if (key === 'TEMP') setCurrentTemp(Number(val));
+//         if (key === 'TIMER') setRemainingSec(Number(val));
+//         if (key === 'MODE') {
+//           const m = val.toLowerCase() as OvenMode;
+//           if (['off', 'bake', 'grill', 'convection', 'roast'].includes(m)) {
+//             setCurrentMode(m);
+//             setMode(m);
+//           }
+//         }
+//       });
+//     } catch (e) {
+//       console.warn('Parse error:', e);
+//     }
+//   }, [lastMessage]);
+
+//   const send = (cmd: string) => {
+//     if (!isConnected) {
+//       Alert.alert('خطا', 'دستگاه متصل نیست');
+//       return;
+//     }
+//     service.send(device.id, cmd);
+//   };
+
+//   const applyAllSettings = () => {
+//     if (mode === 'off') {
+//       Alert.alert('خطا', 'لطفاً حالت پخت را انتخاب کنید');
+//       return;
+//     }
+
+//     const payload = JSON.stringify({
+//       mode: mode.toUpperCase(),
+//       temperature: targetTemp,
+//       timer_seconds: timerMin * 60,
+//     });
+
+//     send(payload);
+//     Alert.alert('موفق', 'تنظیمات ارسال شد');
+//   };
+
+//   const stopOven = () => {
+//     Alert.alert('توقف فر', 'آیا مطمئن هستید؟', [
+//       { text: 'خیر', style: 'cancel' },
+//       { text: 'بله، توقف', style: 'destructive', onPress: () => send('STOP') },
+//     ]);
+//   };
+
+//   if (!device) {
+//     return (
+//       <SafeAreaView
+//         style={[styles.container, { backgroundColor: colors.background }]}
+//       >
+//         <CustomText
+//           style={{ color: colors.error, textAlign: 'center', marginTop: 100 }}
+//         >
+//           دستگاه یافت نشد
+//         </CustomText>
+//       </SafeAreaView>
+//     );
+//   }
+
+//   const isActive = currentMode !== 'off' && remainingSec && remainingSec > 0;
+
+//   return (
+//     <SafeAreaView
+//       style={[styles.container, { backgroundColor: colors.background }]}
+//     >
+//       <ScrollView contentContainerStyle={styles.scrollContent}>
+//         {/* Header */}
+//         <View style={styles.header}>
+//           <CustomText style={styles.title}>{device.name}</CustomText>
+//           <View
+//             style={[
+//               styles.statusBadge,
+//               { backgroundColor: isConnected ? '#10b98120' : '#ef444420' },
+//             ]}
+//           >
+//             <CustomText
+//               style={{
+//                 color: isConnected ? '#10b981' : '#ef4444',
+//                 fontWeight: '600',
+//               }}
+//             >
+//               {isConnected ? 'متصل' : 'قطع'}
+//             </CustomText>
+//           </View>
+//         </View>
+
+//         {/* Status Card */}
+//         <View style={[styles.statusCard, { backgroundColor: colors.card }]}>
+//           <View style={styles.statusGrid}>
+//             <View style={styles.statusItem}>
+//               <CustomText style={styles.label}>دمای فعلی</CustomText>
+//               <CustomText style={styles.bigValue}>
+//                 {currentTemp ? `${currentTemp}°` : '—'}
+//               </CustomText>
+//             </View>
+//             <View style={styles.statusItem}>
+//               <CustomText style={styles.label}>زمان باقی‌مانده</CustomText>
+//               <CustomText style={styles.bigValue}>
+//                 {remainingSec
+//                   ? `${Math.floor(remainingSec / 60)}:${(remainingSec % 60)
+//                       .toString()
+//                       .padStart(2, '0')}`
+//                   : '—'}
+//               </CustomText>
+//             </View>
+//           </View>
+//         </View>
+
+//         {/* Mode Selection */}
+//         <CustomText style={styles.sectionTitle}>حالت پخت</CustomText>
+//         <View style={styles.modeGrid}>
+//           {(['bake', 'grill', 'convection', 'roast'] as OvenMode[]).map(m => (
+//             <TouchableOpacity
+//               key={m}
+//               style={[styles.modeCard, mode === m && styles.modeCardSelected]}
+//               onPress={() => setMode(m)}
+//             >
+//               <CustomText style={styles.modeIcon}>{MODE_ICONS[m]}</CustomText>
+//               <CustomText style={styles.modeLabel}>
+//                 {m === 'bake'
+//                   ? 'پخت معمولی'
+//                   : m === 'grill'
+//                   ? 'گریل'
+//                   : m === 'convection'
+//                   ? 'گردش هوا'
+//                   : 'روست'}
+//               </CustomText>
+//             </TouchableOpacity>
+//           ))}
+//         </View>
+
+//         {/* Temperature Slider */}
+//         <CustomText style={styles.sectionTitle}>دمای هدف</CustomText>
+//         <View style={styles.sliderContainer}>
+//           <CustomText style={styles.sliderValue}>{targetTemp} °C</CustomText>
+//           <Slider
+//             style={styles.slider}
+//             minimumValue={50}
+//             maximumValue={280}
+//             step={5}
+//             value={targetTemp}
+//             onValueChange={setTargetTemp}
+//             minimumTrackTintColor={colors.primary}
+//             thumbTintColor={colors.primary}
+//           />
+//         </View>
+
+//         {/* Timer Slider */}
+//         <CustomText style={styles.sectionTitle}>زمان پخت (دقیقه)</CustomText>
+//         <View style={styles.sliderContainer}>
+//           <CustomText style={styles.sliderValue}>{timerMin} دقیقه</CustomText>
+//           <Slider
+//             style={styles.slider}
+//             minimumValue={1}
+//             maximumValue={240}
+//             step={1}
+//             value={timerMin}
+//             onValueChange={setTimerMin}
+//             minimumTrackTintColor={colors.primary}
+//             thumbTintColor={colors.primary}
+//           />
+//         </View>
+
+//         {/* Action Buttons */}
+//         <View style={styles.actionBar}>
+//           <TouchableOpacity
+//             style={[styles.actionButton, styles.stopButton]}
+//             onPress={stopOven}
+//             disabled={!isActive}
+//           >
+//             <CustomText style={styles.actionButtonText}>توقف پخت</CustomText>
+//           </TouchableOpacity>
+
+//           <TouchableOpacity
+//             style={[styles.actionButton, styles.startButton]}
+//             onPress={applyAllSettings}
+//           >
+//             <CustomText style={styles.actionButtonText}>
+//               {isActive ? 'به‌روزرسانی' : 'شروع پخت'}
+//             </CustomText>
+//           </TouchableOpacity>
+//         </View>
+//       </ScrollView>
+//     </SafeAreaView>
+//   );
+// }

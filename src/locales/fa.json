@@ -42,6 +42,9 @@
     "add_device": "افزودن دستگاه",
     "no_device_has_been_added": "هیچ دستگاهی اضافه نشده است"
   },
+  "device_screen": {
+    "devices": "دستگاه ها"
+  },
   "settings": {
     "setting": "تنظیمات",
     "language": "زبان",

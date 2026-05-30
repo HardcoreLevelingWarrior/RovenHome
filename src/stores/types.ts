@@ -22,6 +22,8 @@ export interface DeviceInfo {
   status: 'paired' | 'online' | 'offline' | 'error' | 'connecting';
   lastSeen?: string; // اختیاری: آخرین باری که آنلاین بود (ISO string)
   type?: 'oven' | 'hood' | 'fridge' | 'other';
+  wifiName?: string;
+  // currentTask?: string;
 }
 
 export interface Device {

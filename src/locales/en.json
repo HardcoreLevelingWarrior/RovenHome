@@ -41,6 +41,9 @@
     "add_device": "Add Device",
     "no_device_has_been_added": "No device has been added"
   },
+  "device_screen": {
+    "devices": "Devices"
+  },
   "settings": {
     "setting": "Setting",
     "language": "language",

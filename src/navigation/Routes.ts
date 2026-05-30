@@ -8,4 +8,6 @@ export const Routes = {
   SetupGuideScreen: 'SetupGuideScreen',
   PairingScreen: 'PairingScreen',
   OvenControlScreen: 'OvenControlScreen',
+  HoodControlScreen: 'HoodControlScreen',
+  StoveControlScreen: 'StoveControlScreen',
 } as const;
