@@ -110,5 +110,18 @@
     "enter_password": "رمز را وارد کنید",
     "cancel": "لغو",
     "ok": "باشه"
+  },
+  "oven-control-screen": {
+    "success": "موفق",
+    "connected": "متصل",
+    "disconnected": "قطع",
+    "current-status": "وضعیت فعلی",
+    "current-temprature": "دمای فعلی",
+    "remaining-time": "زمان باقی مانده",
+    "current-state": "حالت فعلی",
+    "the-device-is-on": "The device is on",
+    "the-device-is-off": "The device is off",
+    "on": "روشن",
+    "off": "خاموش"
   }
 }

@@ -11,12 +11,17 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute } from '@react-navigation/native';
 import Slider from '@react-native-community/slider';
 import { useTheme } from '../../context/themeContext';
+import { useTranslation } from 'react-i18next';
+
 import { useApplicationStore } from '../../stores/ApplicationStore';
 import DeviceConnectionService from '../../services/connection/DeviceConnectionService';
 import CustomText from '../../components/customText';
 import { DeviceInfo } from '../../stores/types';
 
 import CustomAlert from '../../components/CustomAlert';
+import OvenHeader from './components/OvenHeader';
+import OvenStatusCard from './components/OvenStatusCard';
+import OvenPowerControl from './components/OvenPowerControl';
 
 type OvenMode = 'off' | 'bake' | 'grill' | 'convection' | 'roast';
 
@@ -33,7 +38,7 @@ export default function OvenControlScreen() {
   const { device } = route.params as { device: DeviceInfo };
   const { theme } = useTheme();
   const { colors } = theme;
-
+  const { t } = useTranslation();
   const service = DeviceConnectionService.getInstance();
   const { connectedIds, lastMessages } = useApplicationStore();
 
@@ -137,9 +142,9 @@ export default function OvenControlScreen() {
           sendCommand={sendCommand}
         />
 
-        <OvenModeSelector mode={mode} setMode={setMode} />
+        {/* <OvenModeSelector mode={mode} setMode={setMode} /> */}
 
-        <OvenTemperatureControl temp={targetTemp} setTemp={setTargetTemp} />
+        {/* <OvenTemperatureControl temp={targetTemp} setTemp={setTargetTemp} />
 
         <OvenTimerControl time={timerMin} setTime={setTimerMin} />
 
@@ -151,7 +156,7 @@ export default function OvenControlScreen() {
         <OvenActionButtons
           onApply={sendCommand}
           onStop={() => sendCommand('STOP')}
-        />
+        /> */}
       </ScrollView>
 
       <CustomAlert
@@ -173,72 +178,72 @@ export default function OvenControlScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   scrollContent: { padding: 16, paddingBottom: 120 },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  title: { fontSize: 26, fontWeight: 'bold' },
-  statusBadge: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20 },
-  statusCard: {
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 28,
-    shadowOpacity: 0.1,
-    elevation: 4,
-  },
-  statusGrid: { flexDirection: 'row', justifyContent: 'space-around' },
-  statusItem: { alignItems: 'center' },
-  label: { fontSize: 14, opacity: 0.7, marginBottom: 4 },
-  bigValue: { fontSize: 28, fontWeight: '700' },
-  sectionTitle: { fontSize: 18, fontWeight: '600', marginBottom: 12 },
-  modeGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: 32,
-  },
-  modeCard: {
-    width: '48%',
-    paddingVertical: 24,
-    borderWidth: 1.5,
-    borderRadius: 18,
-    alignItems: 'center',
-    marginBottom: 12,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-  },
-  modeCardSelected: {
-    borderColor: '#3b82f6',
-    backgroundColor: 'rgba(59,130,246,0.1)',
-  },
-  modeIcon: { fontSize: 42, marginBottom: 10 },
-  modeLabel: { fontSize: 15, fontWeight: '500' },
-  sliderContainer: { marginBottom: 32 },
-  sliderValue: {
-    fontSize: 24,
-    fontWeight: '700',
-    textAlign: 'center',
-    marginBottom: 12,
-  },
-  slider: { width: '100%', height: 40 },
-  actionBar: {
-    flexDirection: 'row',
-    position: 'absolute',
-    bottom: 24,
-    left: 16,
-    right: 16,
-    gap: 12,
-  },
-  actionButton: {
-    flex: 1,
-    paddingVertical: 18,
-    borderRadius: 16,
-    alignItems: 'center',
-  },
-  startButton: { backgroundColor: '#10b981' },
-  stopButton: { backgroundColor: '#ef4444' },
-  actionButtonText: { color: 'white', fontSize: 17, fontWeight: '700' },
+  // header: {
+  //   flexDirection: 'row',
+  //   justifyContent: 'space-between',
+  //   alignItems: 'center',
+  //   marginBottom: 24,
+  // },
+  // title: { fontSize: 26, fontWeight: 'bold' },
+  // statusBadge: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20 },
+  // statusCard: {
+  //   borderRadius: 20,
+  //   padding: 20,
+  //   marginBottom: 28,
+  //   shadowOpacity: 0.1,
+  //   elevation: 4,
+  // },
+  // statusGrid: { flexDirection: 'row', justifyContent: 'space-around' },
+  // statusItem: { alignItems: 'center' },
+  // label: { fontSize: 14, opacity: 0.7, marginBottom: 4 },
+  // bigValue: { fontSize: 28, fontWeight: '700' },
+  // sectionTitle: { fontSize: 18, fontWeight: '600', marginBottom: 12 },
+  // modeGrid: {
+  //   flexDirection: 'row',
+  //   flexWrap: 'wrap',
+  //   justifyContent: 'space-between',
+  //   marginBottom: 32,
+  // },
+  // modeCard: {
+  //   width: '48%',
+  //   paddingVertical: 24,
+  //   borderWidth: 1.5,
+  //   borderRadius: 18,
+  //   alignItems: 'center',
+  //   marginBottom: 12,
+  //   backgroundColor: 'rgba(255,255,255,0.05)',
+  // },
+  // modeCardSelected: {
+  //   borderColor: '#3b82f6',
+  //   backgroundColor: 'rgba(59,130,246,0.1)',
+  // },
+  // modeIcon: { fontSize: 42, marginBottom: 10 },
+  // modeLabel: { fontSize: 15, fontWeight: '500' },
+  // sliderContainer: { marginBottom: 32 },
+  // sliderValue: {
+  //   fontSize: 24,
+  //   fontWeight: '700',
+  //   textAlign: 'center',
+  //   marginBottom: 12,
+  // },
+  // slider: { width: '100%', height: 40 },
+  // actionBar: {
+  //   flexDirection: 'row',
+  //   position: 'absolute',
+  //   bottom: 24,
+  //   left: 16,
+  //   right: 16,
+  //   gap: 12,
+  // },
+  // actionButton: {
+  //   flex: 1,
+  //   paddingVertical: 18,
+  //   borderRadius: 16,
+  //   alignItems: 'center',
+  // },
+  // startButton: { backgroundColor: '#10b981' },
+  // stopButton: { backgroundColor: '#ef4444' },
+  // actionButtonText: { color: 'white', fontSize: 17, fontWeight: '700' },
 });
 
 // export default function OvenControlScreen() {

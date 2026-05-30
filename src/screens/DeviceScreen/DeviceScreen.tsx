@@ -18,7 +18,6 @@ import { useApplicationStore } from '../../stores/ApplicationStore';
 import DeviceConnectionService from '../../services/connection/DeviceConnectionService';
 import { Routes } from '../../navigation/Routes';
 import { DeviceInfo } from '../../stores/types';
-import TestCard from './components/TestCard';
 
 export default function DeviceScreen() {
   const { t } = useTranslation();

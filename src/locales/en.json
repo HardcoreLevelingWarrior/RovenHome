@@ -107,5 +107,18 @@
     "enter_password": "Enter password",
     "cancel": "Cancle",
     "ok": "OK"
+  },
+  "oven-control-screen": {
+    "successs": "success",
+    "connected": "Connected",
+    "disconnected": "Disconnected",
+    "current-status": "Current Status",
+    "current-temprature": "Current Temprature",
+    "remaining-time": "Remaining Time",
+    "current-state": "Current State",
+    "the-device-is-on": "The device is on",
+    "the-device-is-off": "The device is off",
+    "on": "on",
+    "off": "off"
   }
 }
